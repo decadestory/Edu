@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Mapster" Version="5.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
+    <PackageReference Include="ServiceStack.Text" Version="5.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Atom.EF\Atom.EF.csproj" />
+    <ProjectReference Include="..\Edu.Entity\05.Edu.Entity.csproj" />
+    <ProjectReference Include="..\Edu.Model\04.Edu.Model.csproj" />
+    <ProjectReference Include="..\Edu.Repo\03.Edu.Repo.csproj" />
+  </ItemGroup>
+
+</Project>
