@@ -1,5 +1,5 @@
 # Edu
-## .net core 3.1 开发框架 - efcore codefirst, 全局错误处理，登录认证，参数检查，autofac属性注入，MapSter model mapper转换
+## .net core 3.1 开发框架 - efcore codefirst, 全局错误处理，登录认证，参数检查，autofac属性注入，MapSter model mapper转换,SHA-Hash加密
 ### EFcore 
 
 ``` csharp
