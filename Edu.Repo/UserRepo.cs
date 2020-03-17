@@ -4,10 +4,7 @@ using Edu.Entity;
 using Edu.Model;
 using Edu.Repo.Interface;
 using Mapster;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace Edu.Repo

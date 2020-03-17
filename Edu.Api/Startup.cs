@@ -26,6 +26,7 @@ using Edu.Api.Infrastructure.Formatters;
 using Edu.Api.Infrastructure.Authorizes;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Atom.Logger;
 
 namespace Edu.Api
 {
@@ -110,6 +111,11 @@ namespace Edu.Api
             Assembly repository = Assembly.Load("Edu.Repo");
             builder.RegisterAssemblyTypes(service).Where(t => t.Name.EndsWith("Svc")).AsImplementedInterfaces().PropertiesAutowired();
             builder.RegisterAssemblyTypes(repository).Where(t => t.Name.EndsWith("Repo")).AsImplementedInterfaces().PropertiesAutowired();
+
+            //注册日志服务
+            var logConnStr = Configuration.GetValue<string>("ConnectionStrings:DbLogConn");
+            var logSvcStr = Configuration.GetValue<string>("AppSetting:LoggerSvc");
+            builder.Register(l=> new ALogger(logConnStr, logSvcStr) ).As<IALogger>().PropertiesAutowired().SingleInstance();
 
         }
 

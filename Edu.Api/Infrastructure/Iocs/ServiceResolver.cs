@@ -25,6 +25,14 @@ namespace Edu.Api.Infrastructure.Iocs
             var services = serviceProvidersFeature.RequestServices;
             var service = (T)services.GetService(typeof(T));
             return service;
+        }        
+        
+        public static T GetService<T>(ExceptionContext context)
+        {
+            var serviceProvidersFeature = context.HttpContext.Features.Get<IServiceProvidersFeature>();
+            var services = serviceProvidersFeature.RequestServices;
+            var service = (T)services.GetService(typeof(T));
+            return service;
         }
 
     }

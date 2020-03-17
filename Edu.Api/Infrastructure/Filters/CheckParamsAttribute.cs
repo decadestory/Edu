@@ -1,4 +1,5 @@
 ﻿using Atom.Lib;
+using Atom.Logger;
 using Edu.Api.Infrastructure.Iocs;
 using Edu.Svc.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -10,15 +11,11 @@ using System.Threading.Tasks;
 
 namespace Edu.Api.Infrastructure.Filters
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class CheckParamsAttribute : ActionFilterAttribute
     {
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            //IUserSvc svc = ServiceResolver.GetService<IUserSvc>(context);
-            //var user = svc.GetOne();
-
             var modelState = context.ModelState;
             if (!modelState.IsValid)
             {

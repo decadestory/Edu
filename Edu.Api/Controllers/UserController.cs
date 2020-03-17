@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Atom.Lib;
+using Atom.Logger;
 using Edu.Api.Infrastructure.Authorizes;
 using Edu.Api.Infrastructure.Filters;
 using Edu.Entity;
@@ -18,6 +19,7 @@ namespace Edu.Api.Controllers
     public class UserController : BaseController
     {
         public IUserSvc svc { get; set; }
+        public IALogger logger { get; set; }
 
         /// <summary>
         /// 身份认证
@@ -26,7 +28,7 @@ namespace Edu.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [CheckParams]
-        public Br<UserModel> Auth(AuthModel user) 
+        public Br<UserModel> Auth(AuthModel user)
         {
             var result = svc.Auth(user);
             var token = AuthorizeUtils.Serialize(result);
@@ -55,7 +57,7 @@ namespace Edu.Api.Controllers
         [Auth]
         public Br<int> AddOrEditUser(UserModel user)
         {
-            var result = svc.AddOrEditUser(user,CurUser);
+            var result = svc.AddOrEditUser(user, CurUser);
             return new Br<int>(result);
         }
 
@@ -64,6 +66,7 @@ namespace Edu.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [CheckParams]
         public Br<User> GetOne()
         {
             var result = svc.GetOne();

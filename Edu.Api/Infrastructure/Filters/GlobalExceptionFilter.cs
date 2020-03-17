@@ -1,4 +1,6 @@
 ﻿using Atom.Lib;
+using Atom.Logger;
+using Edu.Api.Infrastructure.Iocs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
@@ -16,6 +18,9 @@ namespace Edu.Api.Infrastructure.Filters
             var errorBr = new Br<string>(context.Exception.Message,-1,context.Exception.Message,stackTrance:context.Exception.StackTrace);
             context.Result = new JsonResult(errorBr);
             context.ExceptionHandled = true;
+
+            IALogger logger = ServiceResolver.GetService<IALogger>(context);
+            logger.Exception(context.Exception);
         }
     }
 }
