@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <RootNamespace>Edu.Svc</RootNamespace>
+    <AssemblyName>Edu.Svc</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

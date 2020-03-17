@@ -102,12 +102,12 @@ namespace Edu.Api
             builder.RegisterType<AContext>().As<IAContext>().WithParameter(new TypedParameter(typeof(DbContextOption), new DbContextOption
             {
                 ConnectionString = connStr,
-                ModelAssemblyName = "05.Edu.Entity"
+                ModelAssemblyName = "Edu.Entity"
             })).PropertiesAutowired().InstancePerLifetimeScope();
 
             //×¢²áService,Repository
-            Assembly service = Assembly.Load("02.Edu.Svc");
-            Assembly repository = Assembly.Load("03.Edu.Repo");
+            Assembly service = Assembly.Load("Edu.Svc");
+            Assembly repository = Assembly.Load("Edu.Repo");
             builder.RegisterAssemblyTypes(service).Where(t => t.Name.EndsWith("Svc")).AsImplementedInterfaces().PropertiesAutowired();
             builder.RegisterAssemblyTypes(repository).Where(t => t.Name.EndsWith("Repo")).AsImplementedInterfaces().PropertiesAutowired();
 
