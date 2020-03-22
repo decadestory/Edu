@@ -27,6 +27,8 @@ using Edu.Api.Infrastructure.Authorizes;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Atom.Logger;
+using Atom.ConfigCenter;
+using Atom.Permissioner;
 
 namespace Edu.Api
 {
@@ -58,19 +60,8 @@ namespace Edu.Api
 
                 s.AddSecurityRequirement(new OpenApiSecurityRequirement {
                 {
-                     new OpenApiSecurityScheme
-                     {
-                       Reference = new OpenApiReference
-                       {
-                         Type = ReferenceType.SecurityScheme,
-                         Id = "Bearer"
-                       }
-                      },
-                      new string[] { }
-                    }
-                  });
-
-
+                     new OpenApiSecurityScheme{Reference = new OpenApiReference{Type = ReferenceType.SecurityScheme,Id = "Bearer"}},new string[] { }}
+                 });
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -79,12 +70,23 @@ namespace Edu.Api
             });
 
             //controller属性注册要加AddControllersAsServices()
-            services.AddControllers().AddControllersAsServices();
+            services.AddControllers().AddControllersAsServices().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                options.JsonSerializerOptions.PropertyNamingPolicy = null;
+            }); ;
+
             services.AddRouting();
             services.AddMvc(option =>
             {
                 option.Filters.Add(typeof(GlobalExceptionFilter));
-                option.Filters.Add<CheckParamsAttribute>();
+                //option.Filters.Add<CheckParamsAttribute>();
+
+                // 使用 ServiceStack.Text 替换默认的 JSON 解析
+                //option.InputFormatters.Clear();
+                //option.InputFormatters.Add(new ServiceStackTextInputFormatter());
+                //option.OutputFormatters.Clear();
+                //option.OutputFormatters.Add(new ServiceStackTextOutputFormatter());
             });
 
             //参数自定义检查去掉自带的验证
@@ -115,7 +117,13 @@ namespace Edu.Api
             //注册日志服务
             var logConnStr = Configuration.GetValue<string>("ConnectionStrings:DbLogConn");
             var logSvcStr = Configuration.GetValue<string>("AppSetting:LoggerSvc");
-            builder.Register(l=> new ALogger(logConnStr, logSvcStr) ).As<IALogger>().PropertiesAutowired().SingleInstance();
+            builder.Register(l => new ALogger(logConnStr, logSvcStr)).As<IALogger>().PropertiesAutowired().SingleInstance();
+
+            //注册配置中心
+            builder.Register(l => new AtomConfigCenter(connStr)).As<IAtomConfigCenter>().PropertiesAutowired().SingleInstance();
+
+            //注册权限管理
+            builder.Register(l => new Permissioner(connStr)).As<IPermissioner>().PropertiesAutowired().SingleInstance();
 
         }
 

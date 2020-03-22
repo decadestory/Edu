@@ -17,14 +17,19 @@ namespace Atom.EF.Core
     public interface IAContext
     {
         DbContextOption Option { get; }
-        DatabaseFacade GetDatabase();
-        DbSet<T> Set<T>() where T : BaseEntity;
+        //DatabaseFacade GetDatabase();
+
+        public new DatabaseFacade Database { get; }
+
+        DbSet<T> Set<T>() where T : class;
         int SaveChanges();
         bool EnsureCreated();
 
         void IsEntityValid<T>(T entity) where T : BaseEntity;
 
-        void BulkInsert<T>(IList<T> entities, string destinationTableName = null) where T : class;
+        List<T> SqlQuery<T>(string sql, params object[] parameters) where T : class;
+
+       void BulkInsert<T>(IList<T> entities, string destinationTableName = null) where T : class;
         DataTable GetDataTable(string sql, params DbParameter[] parameters);
     }
 }

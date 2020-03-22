@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Atom.Lib;
 using Atom.Logger;
+using Atom.Permissioner;
 using Edu.Api.Infrastructure.Authorizes;
 using Edu.Api.Infrastructure.Filters;
 using Edu.Entity;
@@ -20,31 +21,21 @@ namespace Edu.Api.Controllers
     {
         public IUserSvc svc { get; set; }
         public IALogger logger { get; set; }
+        public IPermissioner per { get; set; }
 
-        /// <summary>
-        /// 身份认证
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [CheckParams]
-        public Br<UserModel> Auth(AuthModel user)
-        {
-            var result = svc.Auth(user);
-            var token = AuthorizeUtils.Serialize(result);
-            HttpContext.Response.Headers.Add("Jwt-Token", token);
-            return new Br<UserModel>(result);
-        }
+
 
 
         /// <summary>
         /// 获取用户列表
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
-        public string Users()
+        [HttpPost]
+       [Auth]
+        public Br<List<UserModel>> Users(UserModel model)
         {
-            return "Usersl Id 10";
+            var result = svc.Users(model);
+            return new Br<List<UserModel>>(result.Item1, extData: result.Item2);
         }
 
 
@@ -54,7 +45,7 @@ namespace Edu.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [CheckParams]
-        [Auth]
+       [Auth]
         public Br<int> AddOrEditUser(UserModel user)
         {
             var result = svc.AddOrEditUser(user, CurUser);

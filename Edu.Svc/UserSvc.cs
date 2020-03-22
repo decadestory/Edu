@@ -4,6 +4,7 @@ using Edu.Model;
 using Edu.Repo.Interface;
 using Edu.Svc.Interface;
 using System;
+using System.Collections.Generic;
 
 namespace Edu.Svc
 {
@@ -11,7 +12,7 @@ namespace Edu.Svc
     {
         public  IUserRepo rep { get; set; }
 
-        public UserModel Auth(AuthModel user)
+        public UserTokenModel Auth(AuthModel user)
         {
             return rep.Auth(user);
         }
@@ -30,5 +31,9 @@ namespace Edu.Svc
             return rep.GetOne();
         }
 
+        public Tuple<List<UserModel>, int> Users(UserModel model)
+        {
+            return rep.Users(model);
+        }
     }
 }

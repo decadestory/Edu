@@ -27,5 +27,11 @@ namespace Edu.Entity
 
         [StringLength(11, ErrorMessage = "MobilePhone太长了")]
         public string MobilePhone { get; set; }
+
+        public DateTime? BirthDay { set; get; }
+        public string HeadImg { set; get; }
+        public bool? Gender { set; get; }
+
+
     }
 }

@@ -13,7 +13,6 @@ namespace Edu.Api.Infrastructure.Filters
 {
     public class CheckParamsAttribute : ActionFilterAttribute
     {
-
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             var modelState = context.ModelState;

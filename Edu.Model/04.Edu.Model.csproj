@@ -10,4 +10,10 @@
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Atom.ConfigCenter\Atom.ConfigCenter.csproj" />
+    <ProjectReference Include="..\Atom.Lib\Atom.Lib.csproj" />
+    <ProjectReference Include="..\Atom.Permissioner\Atom.Permissioner.csproj" />
+  </ItemGroup>
+
 </Project>

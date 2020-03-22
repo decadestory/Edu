@@ -19,7 +19,7 @@ namespace Edu.Api.Infrastructure.Filters
             filterContext.HttpContext.Request.Headers.TryGetValue("Jwt-Token", out StringValues token);
             if (!token.Any())
             {
-                var errorBr = new Br<string>("拒绝访问", -1, "没有身份认证");
+                var errorBr = new Br<string>("拒绝访问", 403, "没有身份认证");
                 filterContext.Result = new JsonResult(errorBr);
                 return;
             }
@@ -27,7 +27,7 @@ namespace Edu.Api.Infrastructure.Filters
             var isValid = AuthorizeUtils.Validate(token);
             if (!isValid)
             {
-                var errorBr = new Br<string>("拒绝访问", -1, "身份认证失败");
+                var errorBr = new Br<string>("拒绝访问", 403, "身份认证失败");
                 filterContext.Result = new JsonResult(errorBr);
                 return;
             }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Atom.Permissioner.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,5 +12,7 @@ namespace Edu.Model
         public string UserName { get; set; }
         public string LoginId { get; set; }
         public string MobilePhone { get; set; }
+        public List<AtomPermissionMiniModel> Permissions { get; set; }
+
     }
 }

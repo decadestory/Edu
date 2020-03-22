@@ -11,6 +11,9 @@ namespace Edu.Svc.Interface
     {
         public int AddOrEditUser(UserModel user,UserTokenModel curUser);
         public User GetOne();
-        public UserModel Auth(AuthModel user);
+        public UserTokenModel Auth(AuthModel user);
+
+        public Tuple<List<UserModel>, int> Users(UserModel model);
+
     }
 }

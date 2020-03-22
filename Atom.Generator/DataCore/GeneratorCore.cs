@@ -22,31 +22,31 @@ namespace Atom.Generator.DataCore
             Console.WriteLine("=====================");
 
 
-            Console.WriteLine("=====================");
-            Console.WriteLine("Generate Model...");
-            FileHelper.CreateModelFile(tableName, cols);
-            Console.WriteLine("Generate Model Success !!");
-            Console.WriteLine("=====================");
+            //Console.WriteLine("=====================");
+            //Console.WriteLine("Generate Model...");
+            //FileHelper.CreateModelFile(tableName, cols);
+            //Console.WriteLine("Generate Model Success !!");
+            //Console.WriteLine("=====================");
 
-            Console.WriteLine("=====================");
-            Console.WriteLine("Generate Reposity...");
-            FileHelper.CreateRepolFile(tableName);
-            Console.WriteLine("Generate Reposity Success !!");
-            Console.WriteLine("=====================");
-
-
-            Console.WriteLine("=====================");
-            Console.WriteLine("Generate Service...");
-            FileHelper.CreateSvclFile(tableName);
-            Console.WriteLine("Generate Service Success !!");
-            Console.WriteLine("=====================");
+            //Console.WriteLine("=====================");
+            //Console.WriteLine("Generate Reposity...");
+            //FileHelper.CreateRepolFile(tableName);
+            //Console.WriteLine("Generate Reposity Success !!");
+            //Console.WriteLine("=====================");
 
 
-            Console.WriteLine("=====================");
-            Console.WriteLine("Generate Controller...");
-            FileHelper.CreateCtrllFile(tableName);
-            Console.WriteLine("Generate Controller Success !!");
-            Console.WriteLine("=====================");
+            //Console.WriteLine("=====================");
+            //Console.WriteLine("Generate Service...");
+            //FileHelper.CreateSvclFile(tableName);
+            //Console.WriteLine("Generate Service Success !!");
+            //Console.WriteLine("=====================");
+
+
+            //Console.WriteLine("=====================");
+            //Console.WriteLine("Generate Controller...");
+            //FileHelper.CreateCtrllFile(tableName);
+            //Console.WriteLine("Generate Controller Success !!");
+            //Console.WriteLine("=====================");
 
         }
 

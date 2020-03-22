@@ -64,9 +64,12 @@ namespace Atom.EF.Core
             });
         }
 
-        public DatabaseFacade GetDatabase() => Database;
+        //public DatabaseFacade GetDatabase() => Database;
 
-        public new DbSet<T> Set<T>() where T : BaseEntity
+        public new DatabaseFacade Database { get { return base.Database; } }
+
+
+        public new DbSet<T> Set<T>() where T : class
         {
             return base.Set<T>();
         }
@@ -88,6 +91,11 @@ namespace Atom.EF.Core
 
             var succcess = Validator.TryValidateObject(entity, vEntity, vResults, true);
             if (!succcess) throw new Exception(string.Join("\n", vResults.Select(r => r.ErrorMessage)));
+        }
+
+        public  List<T> SqlQuery<T>(string sql, params object[] parameters) where T : class
+        {
+            return base.Set<T>().FromSqlRaw(sql, parameters).ToList();
         }
 
         public virtual void BulkInsert<T>(IList<T> entities, string destinationTableName = null) where T : class

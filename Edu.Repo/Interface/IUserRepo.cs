@@ -2,6 +2,7 @@
 using Edu.Entity;
 using Edu.Model;
 using System;
+using System.Collections.Generic;
 
 namespace Edu.Repo.Interface
 {
@@ -9,6 +10,8 @@ namespace Edu.Repo.Interface
     {
         public int AddOrEditUser(UserModel user, UserTokenModel curUser);
         public User GetOne();
-        public UserModel Auth(AuthModel user);
+        public UserTokenModel Auth(AuthModel user);
+
+        public Tuple<List<UserModel>, int> Users(UserModel model);
     }
 }

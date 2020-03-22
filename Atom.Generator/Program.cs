@@ -16,7 +16,7 @@ namespace Atom.Generator
                 Console.WriteLine("Generator Start...");
                 Console.WriteLine("=====================");
 
-                GeneratorCore.Generate("AtomLogger");
+                GeneratorCore.Generate("UserTecherExt");
 
                 Console.WriteLine("=====================");
                 Console.WriteLine("Generator Success!");
