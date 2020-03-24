@@ -100,9 +100,17 @@ namespace Edu.Api
             .Where(type => typeof(ControllerBase).IsAssignableFrom(type)).ToArray();
             builder.RegisterTypes(controllersTypesInAssembly).PropertiesAutowired();
 
-            //注册DbContext为Scope模式
+            //注册EFCore为Scope模式
+            //var connStr = Configuration.GetValue<string>("ConnectionStrings:DbConn");
+            //builder.RegisterType<AContext>().As<IAContext>().WithParameter(new TypedParameter(typeof(DbContextOption), new DbContextOption
+            //{
+            //    ConnectionString = connStr,
+            //    ModelAssemblyName = "Edu.Entity"
+            //})).PropertiesAutowired().InstancePerLifetimeScope();
+
+            //注册EF6为Scope模式
             var connStr = Configuration.GetValue<string>("ConnectionStrings:DbConn");
-            builder.RegisterType<AContext>().As<IAContext>().WithParameter(new TypedParameter(typeof(DbContextOption), new DbContextOption
+            builder.RegisterType<AContextEF6>().As<IAContextEF6>().WithParameter(new TypedParameter(typeof(DbContextOption), new DbContextOption
             {
                 ConnectionString = connStr,
                 ModelAssemblyName = "Edu.Entity"
@@ -131,12 +139,12 @@ namespace Edu.Api
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
-            //自动创建数据库
-            using (IServiceScope serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetRequiredService<IAContext>();
-                context.EnsureCreated();
-            }
+            //EFCore自动创建数据库
+            //using (IServiceScope serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            //{
+            //    var context = serviceScope.ServiceProvider.GetRequiredService<IAContext>();
+            //    context.EnsureCreated();
+            //}
 
             app.UseRouting();
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());

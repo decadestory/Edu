@@ -6,13 +6,19 @@ namespace Edu.Model
 {
     public class UserModel:PagerInBase
     {
+		/// <summary>
+		/// 0 系统用户 1学员 2 老师
+		/// </summary>
+        public int UserType { get; set; }
         public int UserId { get; set; }
-        public string UserName { get; set; }
+		public string UserName { get; set; }
         public string LoginId { get; set; }
         public string Password { get; set; }
-        [Required(ErrorMessage ="手机号不能为空")]
-        [StringLength(11, ErrorMessage = "MobilePhone太长了")]
         public string MobilePhone { get; set; }
+
+		public DateTime? BirthDay { set; get; }
+		public string HeadImg { set; get; }
+		public bool? Gender { set; get; }
 
 		public string ParentDoing { set; get; }
 		public string ParentName { set; get; }
@@ -35,6 +41,15 @@ namespace Edu.Model
 		public string SendPeople { set; get; }
 		public string TechHistory { set; get; }
 		public string Certificate { set; get; }
+
+		public DateTime AddTime { get; set; }
+		public int AddUserId { get; set; }
+		public DateTime EditTime { get; set; }
+		public int EditUserId { get; set; }
+		public bool IsValid { get; set; }
+
+		public int ClassId { get; set; }
+
 
 		public string KeyWord { set; get; }
 

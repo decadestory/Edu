@@ -13,5 +13,7 @@ namespace Edu.Repo.Interface
         public UserTokenModel Auth(AuthModel user);
 
         public Tuple<List<UserModel>, int> Users(UserModel model);
+
+        public Tuple<List<UserModel>, int> ClassUsers(UserModel model);
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Atom.Generator.DataCore
@@ -12,13 +13,15 @@ namespace Atom.Generator.DataCore
         static string nspace = "Edu";
         static string author = "Jerry";
 
-        static string pathEntity = path + nspace+".Entity/";
+        static string pathEntity = path + nspace + ".Entity/";
         static string pathModel = path + nspace + ".Model/";
         static string pathRepo = path + nspace + ".Repo/";
         static string pathSvc = path + nspace + ".Svc/";
         static string pathCtrl = path + nspace + ".Api/Controllers/";
         static string pathIRepo = path + nspace + ".Repo/Interface/";
         static string pathISvc = path + nspace + ".Svc/Interface/";
+        static string pathEnMapper = path + nspace + ".Entity/Mapper/";
+
 
 
         public static void CreateEntityFile(string tableName, List<Column> cols)
@@ -28,6 +31,16 @@ namespace Atom.Generator.DataCore
             if (File.Exists(fileName)) return;
             File.Delete(fileName);
             var fileString = GetEntityString(tableName, cols);
+            WriteFile(fileName, fileString);
+        }
+
+        public static void CreateEntityMapperFile(string tableName, List<Column> cols)
+        {
+            if (!Directory.Exists(pathEnMapper)) Directory.CreateDirectory(pathEnMapper);
+            var fileName = pathEnMapper + tableName + "Mapper.cs";
+            if (File.Exists(fileName)) return;
+            File.Delete(fileName);
+            var fileString = GetEntityMapperString(tableName, cols);
             WriteFile(fileName, fileString);
         }
 
@@ -50,7 +63,7 @@ namespace Atom.Generator.DataCore
             var fileString = GetRepoString(tableName, false);
             WriteFile(fileName, fileString);
 
-            fileName = pathIRepo +"I"+ tableName + "Repo.cs";
+            fileName = pathIRepo + "I" + tableName + "Repo.cs";
             if (File.Exists(fileName)) return;
             fileString = GetRepoString(tableName, true);
             WriteFile(fileName, fileString);
@@ -98,14 +111,14 @@ namespace Atom.Generator.DataCore
             sb.AppendLine("using System.ComponentModel.DataAnnotations;");
             sb.AppendLine("using System.ComponentModel.DataAnnotations.Schema;");
 
-            sb.AppendLine("namespace " + nspace+ ".Entity");
+            sb.AppendLine("namespace " + nspace + ".Entity");
             sb.AppendLine("{");
             sb.AppendLine("\t public class " + tableName + " : BaseEntity");
             sb.AppendLine("\t {");
 
             foreach (var item in cols)
             {
-                var listFilter = new List<string> { "AddTime", "EditTime","AddUserId","EditUserId","IsValid" };
+                var listFilter = new List<string> { "AddTime", "EditTime", "AddUserId", "EditUserId", "IsValid" };
                 if (listFilter.Contains(item.Name)) continue;
 
                 if (!string.IsNullOrEmpty(item.Description))
@@ -117,6 +130,39 @@ namespace Atom.Generator.DataCore
 
                 sb.AppendLine("\t\t public " + item.TypeName + item.NullString + " " + item.Name + " " + item.EndString);
             }
+
+            sb.AppendLine("\t }");
+            sb.AppendLine("}");
+
+            return sb.ToString();
+        }
+
+        public static string GetEntityMapperString(string tableName, List<Column> cols)
+        {
+            var cf = cols.FirstOrDefault();
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine("/*******************************************************");
+            sb.AppendLine("*创建作者： " + author);
+            sb.AppendLine("*类的名称： " + tableName);
+            sb.AppendLine("*命名空间： " + nspace + ".Entity.Mapper");
+            sb.AppendLine("*创建时间： " + DateTime.Now.ToShortDateString());
+            sb.AppendLine("********************************************************/");
+
+            sb.AppendLine("using Atom.EF.Base;");
+            sb.AppendLine("using System;");
+
+            sb.AppendLine("namespace " + nspace + ".Entity.Mapper");
+            sb.AppendLine("{");
+            sb.AppendLine("\t public class " + tableName + "Mapper : BaseMap<" + tableName + ">");
+            sb.AppendLine("\t {");
+
+            sb.AppendLine("\t\tpublic override void Init()");
+            sb.AppendLine("\t\t{");
+            sb.AppendLine("\t\t\tToTable(\"" + tableName + "\");");
+            sb.AppendLine("\t\t\tHasKey(m => m." + cf.Name + ");");
+            sb.AppendLine("\t\t}");
 
             sb.AppendLine("\t }");
             sb.AppendLine("}");
@@ -143,10 +189,10 @@ namespace Atom.Generator.DataCore
 
             sb.AppendLine("namespace " + nspace + ".Model");
             sb.AppendLine("{");
-            sb.AppendLine("\t public class " + tableName+"Model");
+            sb.AppendLine("\t public class " + tableName + "Model");
             sb.AppendLine("\t {");
 
-            foreach (var item in cols) sb.AppendLine("\t\t public " + item.TypeName  + item.NullString + " " + item.Name + " " + item.EndString);
+            foreach (var item in cols) sb.AppendLine("\t\t public " + item.TypeName + item.NullString + " " + item.Name + " " + item.EndString);
 
             sb.AppendLine("\t }");
             sb.AppendLine("}");
@@ -154,7 +200,7 @@ namespace Atom.Generator.DataCore
             return sb.ToString();
         }
 
-        public static string GetRepoString(string tableName,bool isInterface=false)
+        public static string GetRepoString(string tableName, bool isInterface = false)
         {
             var sb = new StringBuilder();
 
@@ -177,7 +223,7 @@ namespace Atom.Generator.DataCore
             sb.AppendLine("using System;");
             sb.AppendLine("");
 
-            sb.AppendLine("namespace " + nspace+ ".Repo");
+            sb.AppendLine("namespace " + nspace + ".Repo");
             sb.AppendLine("{");
             sb.AppendLine($"\t public class {tableName}Repo : BaseRepo<{tableName}>, I{tableName}Repo");
             sb.AppendLine("\t {");
@@ -188,7 +234,7 @@ namespace Atom.Generator.DataCore
             return sb.ToString();
 
 
-        repoInter:
+            repoInter:
 
             sb.AppendLine("/*******************************************************");
             sb.AppendLine("*创建作者： " + author);
@@ -242,14 +288,14 @@ namespace Atom.Generator.DataCore
             sb.AppendLine("{");
             sb.AppendLine($"\t public class {tableName}Svc : BaseSvc, I{tableName}Svc");
             sb.AppendLine("\t {");
-            sb.AppendLine("\t\t public  IUserRepo rep { get; set; }");
+            sb.AppendLine("\t\t public  I"+tableName+"Repo rep { get; set; }");
 
             sb.AppendLine("\t }");
             sb.AppendLine("}");
             return sb.ToString();
 
 
-        svcInter:
+            svcInter:
 
             sb.AppendLine("/*******************************************************");
             sb.AppendLine("*创建作者： " + author);
@@ -303,7 +349,7 @@ namespace Atom.Generator.DataCore
             sb.AppendLine("{");
             sb.AppendLine($"\t   public class {tableName}Controller : BaseController");
             sb.AppendLine("\t {");
-            sb.AppendLine("\t\t public IUserSvc svc { get; set; }");
+            sb.AppendLine("\t\t public I"+tableName+"Svc svc { get; set; }");
             sb.AppendLine("\t\t public IALogger logger { get; set; }");
 
             sb.AppendLine("\t }");
@@ -311,6 +357,9 @@ namespace Atom.Generator.DataCore
             return sb.ToString();
 
         }
+
+
+
 
 
         public static void WriteFile(string fileName, string fileString)

@@ -306,7 +306,5 @@ namespace Atom.ConfigCenter.DataCore
             return result > 0;
         }
 
-
-
     }
 }

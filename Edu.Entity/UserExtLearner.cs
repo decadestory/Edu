@@ -12,7 +12,7 @@ namespace Edu.Entity
 {
 	 public class UserExtLearner : BaseEntity
 	 {
-		[Key]
+		public int Id { get; set; }
 		public int UserId { set; get; }
 		public string ParentDoing  {set;get;}
 		 public string ParentName  {set;get;}

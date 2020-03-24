@@ -15,5 +15,7 @@ namespace Edu.Svc.Interface
 
         public Tuple<List<UserModel>, int> Users(UserModel model);
 
+        public Tuple<List<UserModel>, int> ClassUsers(UserModel model);
+
     }
 }

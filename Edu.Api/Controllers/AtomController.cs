@@ -148,6 +148,13 @@ namespace Edu.Api.Controllers
             return new Br<bool> { Data = result };
         }
 
+        [HttpPost, Auth]
+        public Br<List<AtomCateConfigModel>> GetDictsByParentCode(string dictCode)
+        {
+            var result =config.GetCates(dictCode);
+            return new Br<List<AtomCateConfigModel>>(result);
+        }
+
 
     }
 }

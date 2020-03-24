@@ -21,6 +21,12 @@ namespace Atom.Generator.DataCore
             Console.WriteLine("Generate Entity Success !!");
             Console.WriteLine("=====================");
 
+            Console.WriteLine("=====================");
+            Console.WriteLine("Generate EntityMapper...");
+            FileHelper.CreateEntityMapperFile(tableName, cols);
+            Console.WriteLine("Generate EntityMapper Success !!");
+            Console.WriteLine("=====================");
+
 
             //Console.WriteLine("=====================");
             //Console.WriteLine("Generate Model...");

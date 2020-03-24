@@ -1,8 +1,8 @@
 /*******************************************************
 *创建作者： Jerry
-*类的名称： UserTecherExt
+*类的名称： Classes
 *命名空间： Edu.Entity
-*创建时间： 2020/3/23
+*创建时间： 2020/3/24
 ********************************************************/
 using Atom.EF.Base;
 using System;
@@ -10,11 +10,10 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 namespace Edu.Entity
 {
-	 public class UserTecherExt : BaseEntity
+	 public class Classes : BaseEntity
 	 {
-		public int Id { get; set; }
-		public int UserId { set; get; }
-		public string TechHistory  {set;get;}
-		 public string Certificate  {set;get;}
+		 public string ClassName  {set;get;}
+		 public int Id  {set;get;}
+		 public int? ClassType  {set;get;}
 	 }
 }

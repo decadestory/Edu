@@ -35,5 +35,10 @@ namespace Edu.Svc
         {
             return rep.Users(model);
         }
+
+        public Tuple<List<UserModel>, int> ClassUsers(UserModel model)
+        {
+            return rep.ClassUsers(model);
+        }
     }
 }

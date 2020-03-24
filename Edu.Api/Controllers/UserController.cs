@@ -38,6 +38,18 @@ namespace Edu.Api.Controllers
             return new Br<List<UserModel>>(result.Item1, extData: result.Item2);
         }
 
+        /// <summary>
+        /// 获取班级用户列表
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Auth]
+        public Br<List<UserModel>> ClassUsers(UserModel model)
+        {
+            var result = svc.ClassUsers(model);
+            return new Br<List<UserModel>>(result.Item1, extData: result.Item2);
+        }
+
 
         /// <summary>
         /// 添加或修改用户

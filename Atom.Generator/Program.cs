@@ -16,7 +16,7 @@ namespace Atom.Generator
                 Console.WriteLine("Generator Start...");
                 Console.WriteLine("=====================");
 
-                GeneratorCore.Generate("UserTecherExt");
+                GeneratorCore.Generate("TrainLearner");
 
                 Console.WriteLine("=====================");
                 Console.WriteLine("Generator Success!");
