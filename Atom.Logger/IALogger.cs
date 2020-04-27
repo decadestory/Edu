@@ -9,27 +9,28 @@ namespace Atom.Logger
 {
     public interface IALogger
     {
-          bool BInfo(string txt, string logType = "std", string logTypeName = "", int relId = 0, string user = null);
+        bool BInfo(string txt, string logType = "std", string logTypeName = "", int relId = 0, string user = null);
 
-          List<AtomOpreateLoggerModel> GetBLogs(int relId);
+        List<AtomOpreateLoggerModel> GetBLogs(int relId);
 
-          bool Debug(string txt, string logType = "std", string user = null);
+        bool Debug(string txt, string logType = "std", string user = null);
 
-          bool Info(string txt, string logType = "std", string user = null);
+        bool Info(string txt, string logType = "std", string user = null);
 
-         bool Warn(string txt, string logType = "std", string user = null);
+        bool Warn(string txt, string logType = "std", string user = null);
 
-          bool Error(string txt, string logType = "std", string user = null);
+        bool Error(string txt, string logType = "std", string user = null);
 
-          bool Fatal(string txt, string logType = "std", string user = null);
+        bool Fatal(string txt, string logType = "std", string user = null);
 
-          bool Monitor(string logUrl = "", string user = null, long? contentLength = 0, long duration = 0, string logType = "monitor", string param = "");
+        bool Monitor(string logUrl = "", string user = null, long? contentLength = 0, long duration = 0, string logType = "monitor", string param = "");
 
-          bool Exception(Exception ex, string logType = "exception", string user = null, string txt = "");
+        bool Exception(Exception ex, string logType = "exception", string user = null, string txt = "");
 
-          void LogToFile(string txt, int level = 1);
+        void LogToFile(string txt, int level = 1);
 
-          Tuple<List<AtomLoggerModel>, long> GetLogList(AtomLoggerModel request);
+        Tuple<List<AtomLoggerModel>, long> GetLogList(AtomLoggerModel request);
+        public string Html();
 
-        }
+    }
 }

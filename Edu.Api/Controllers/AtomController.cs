@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using Atom.ConfigCenter;
 using Atom.ConfigCenter.Model;
 using Atom.Lib;
+using Atom.Logger;
+using Atom.Logger.Model;
 using Atom.Permissioner;
 using Atom.Permissioner.Model;
 using Edu.Api.Infrastructure.Filters;
@@ -15,8 +21,9 @@ namespace Edu.Api.Controllers
 {
     public class AtomController : BaseController
     {
-        public IAtomConfigCenter config{ get; set; }
+        public IAtomConfigCenter config { get; set; }
         public IPermissioner per { get; set; }
+        public IALogger logger { get; set; }
 
         [HttpPost, Auth]
         public Br<bool> AddAtomConfig(AtomConfigModel model)
@@ -130,12 +137,12 @@ namespace Edu.Api.Controllers
         [HttpPost, Auth]
         public Br<bool> AddDict(NAtomCateConfigModel request)
         {
-            var result = config.AddDict(request,0);
+            var result = config.AddDict(request, 0);
             return new Br<bool> { Data = result };
         }
 
         [HttpPost, Auth]
-        public Br<bool> EditDict(NAtomCateConfigModel request)  
+        public Br<bool> EditDict(NAtomCateConfigModel request)
         {
             var result = config.EditDict(request);
             return new Br<bool> { Data = result };
@@ -151,10 +158,25 @@ namespace Edu.Api.Controllers
         [HttpPost, Auth]
         public Br<List<AtomCateConfigModel>> GetDictsByParentCode(string dictCode)
         {
-            var result =config.GetCates(dictCode);
+            var result = config.GetCates(dictCode);
             return new Br<List<AtomCateConfigModel>>(result);
         }
 
+        [HttpPost]
+        public Br<List<AtomLoggerModel>> Logs(AtomLoggerModel model)
+        {
+            var result = logger.GetLogList(model);
+            return new Br<List<AtomLoggerModel>>(result.Item1, extData: result.Item2);
+        }
+
+        [HttpGet]
+        public async Task LoggerView()
+        {
+            var html = logger.Html();
+            Response.ContentType = "text/html";
+            var data = Encoding.UTF8.GetBytes(html);
+            await Response.Body.WriteAsync(data, 0, data.Length);
+        }
 
     }
 }

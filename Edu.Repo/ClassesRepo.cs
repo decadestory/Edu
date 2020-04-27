@@ -55,6 +55,8 @@ namespace Edu.Repo
             if (!string.IsNullOrWhiteSpace(model.KeyWord))
                 where.Append($" and u.ClassName like '%{model.KeyWord}%'  ");
 
+            if (model.IsValid==true) where.Append($" and u.IsValid=1 ");
+
             var cols = @"select * ";
             var sql = $@" from Classes u where {where}  ";
             var cntSql = $"select count(1) {sql} ";

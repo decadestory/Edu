@@ -16,5 +16,7 @@ namespace Edu.Entity
         public DateTime? BirthDay { set; get; }
         public string HeadImg { set; get; }
         public bool? Gender { set; get; }
+        //public string SSN { set; get; }
+
     }
 }

@@ -47,12 +47,16 @@ namespace Edu.Model
 		public DateTime EditTime { get; set; }
 		public int EditUserId { get; set; }
 		public bool IsValid { get; set; }
-
 		public int ClassId { get; set; }
-
-
 		public string KeyWord { set; get; }
+	}
 
-
+	public class TrainUserModel
+	{
+		public int TrainId { get; set; }
+		public int UserId { get; set; }
+		public string UserName { get; set; }
+		public string MobilePhone { get; set; }
+		public string Remark { get; set; }
 	}
 }

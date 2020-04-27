@@ -12,8 +12,8 @@ namespace Edu.Entity
 {
 	 public class ClassUser : BaseEntity
 	 {
-		 public int? ClassId  {set;get;}
-		 public int? UserId  {set;get;}
+		 public int ClassId  {set;get;}
+		 public int UserId  {set;get;}
 		 public int Id  {set;get;}
 	 }
 }

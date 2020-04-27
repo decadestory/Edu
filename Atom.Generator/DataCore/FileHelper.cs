@@ -227,7 +227,7 @@ namespace Atom.Generator.DataCore
             sb.AppendLine("{");
             sb.AppendLine($"\t public class {tableName}Repo : BaseRepo<{tableName}>, I{tableName}Repo");
             sb.AppendLine("\t {");
-            sb.AppendLine("\t\t public IAContext db { get; set; }");
+            sb.AppendLine("\t\t public IAContextEF6 db { get; set; }");
 
             sb.AppendLine("\t }");
             sb.AppendLine("}");

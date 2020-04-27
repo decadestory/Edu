@@ -11,6 +11,8 @@ namespace Edu.Entity.Mapper
         {
             ToTable("User");
             HasKey(m => m.UserId);
+            //HasRequired(m=>m.SSN);
+            //Property(t => t.SSN).IsRequired();
         }
     }
 }

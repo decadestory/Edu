@@ -108,7 +108,7 @@ namespace Atom.Logger.DataCore
                 where.AppendFormat(" and LogUser='{0}'", request.LogUser);
 
             if (!string.IsNullOrWhiteSpace(request.LogUrl))
-                where.AppendFormat(" and LogUrl like '{0}%'", request.LogUrl);
+                where.AppendFormat(" and LogUrl like '%{0}%'", request.LogUrl);
 
             if (!string.IsNullOrWhiteSpace(request.LogTxt))
                 where.AppendFormat(" and LogTxt like '%{0}%'", request.LogTxt);

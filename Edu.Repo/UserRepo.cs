@@ -36,6 +36,7 @@ namespace Edu.Repo
             ue.Password = pwd.Item1;
             ue.Salt = pwd.Item2;
             ue.LoginId = string.IsNullOrWhiteSpace(ue.LoginId) ? Guid.NewGuid().ToString("N") : user.LoginId;
+            //ue.SSN = ue.MobilePhone;
             ue.AddUserId = curUser.UserId;
             ue.EditUserId = curUser.UserId;
             ue.AddTime = DateTime.Now;
@@ -81,6 +82,7 @@ namespace Edu.Repo
             var exist = db.Set<User>().Find(user.UserId);
             exist.UserName = user.UserName;
             exist.MobilePhone = user.MobilePhone;
+            //exist.SSN = user.MobilePhone;
             exist.Gender = user.Gender;
             exist.HeadImg = user.HeadImg;
             exist.BirthDay = user.BirthDay;
@@ -135,6 +137,8 @@ namespace Edu.Repo
                 where.Append($" and  uwr.RoleCode='learner' ");
             else if (model.UserType == 2)
                 where.Append($" and  uwr.RoleCode='trainer' ");
+
+            if (model.IsValid == true) where.Append($" and u.IsValid=1 ");
 
 
             if (!string.IsNullOrWhiteSpace(model.KeyWord))

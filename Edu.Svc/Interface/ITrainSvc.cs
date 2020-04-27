@@ -9,10 +9,18 @@ using Atom.EF.Base.Interface;
 using Edu.Entity;
 using Edu.Model;
 using System;
+using System.Collections.Generic;
 
 namespace Edu.Svc.Interface
 {
 	 public interface ITrainSvc :  IBaseSvc
 	 {
-	 }
+		public bool AddOrEditTrain(TrainModel model, UserTokenModel curUser);
+		public Tuple<List<TrainModel>, int> Trains(TrainModel model);
+		public List<TrainUserModel> TrainAllLearners(TrainUserModel model);
+		public bool SetLearnerRemark(TrainUserModel model, UserTokenModel curUser);
+
+
+
+	}
 }
