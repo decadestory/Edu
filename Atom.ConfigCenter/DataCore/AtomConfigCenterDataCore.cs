@@ -71,10 +71,11 @@ namespace Atom.ConfigCenter.DataCore
             }
         }
 
-        public static List<AtomCateConfigModel> GetCates(string parentCode)
+        public static List<AtomCateConfigModel> GetCates(string parentCode,bool hasDisable=false)
         {
-            var result = SonFact.Cur.FindMany<AtomCateConfig, AtomCateConfigModel>(t => t.ParentCateCode == parentCode && t.IsValid == true);
-            result = result.OrderBy(t=>t.Sort).ToList();
+            var result = hasDisable ? SonFact.Cur.ExecuteQuery<AtomCateConfigModel>($"select * from AtomCateConfig  where  isnull(ParentCateCode,'')='{parentCode}' order by sort") 
+                : SonFact.Cur.ExecuteQuery<AtomCateConfigModel>($"select * from AtomCateConfig  where isvalid=1 and isnull(ParentCateCode,'')='{parentCode}' order by sort");
+            //var result = SonFact.Cur.FindMany<AtomCateConfig, AtomCateConfigModel>(t => t.ParentCateCode == parentCode && t.IsValid == true);
             if (!result.Any()) return new List<AtomCateConfigModel>();
             return result;
         }

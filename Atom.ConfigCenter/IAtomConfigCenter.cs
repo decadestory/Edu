@@ -14,7 +14,7 @@ namespace Atom.ConfigCenter
 
         long SetCate(string name, string code, string pCode = null, string extCode = null, string mainCode = null, int sort = 0, bool hasVal = false, bool isAdd = false);
 
-        List<AtomCateConfigModel> GetCates(string parentCode);
+        List<AtomCateConfigModel> GetCates(string parentCode, bool hasDisable = false);
 
         List<AtomCateConfigModel> GetCatesByDomain(string parentCode, int domainId);
 
@@ -37,6 +37,8 @@ namespace Atom.ConfigCenter
         bool EditDict(NAtomCateConfigModel model);
 
         bool DelDict(int cid);
+
+        string Html();
 
 
     }

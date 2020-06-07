@@ -87,7 +87,7 @@ namespace Edu.Api
                 //数据格式按原样输出
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();
                 //忽略空值
-                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                //options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             });
 
             services.AddRouting();

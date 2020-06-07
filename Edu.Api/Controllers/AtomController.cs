@@ -134,32 +134,33 @@ namespace Edu.Api.Controllers
             return new Br<List<NAtomCateConfigModel>> { Data = result };
         }
 
-        [HttpPost, Auth]
+        [HttpPost]
         public Br<bool> AddDict(NAtomCateConfigModel request)
         {
             var result = config.AddDict(request, 0);
             return new Br<bool> { Data = result };
         }
 
-        [HttpPost, Auth]
+        [HttpPost]
         public Br<bool> EditDict(NAtomCateConfigModel request)
         {
             var result = config.EditDict(request);
             return new Br<bool> { Data = result };
         }
 
-        [HttpPost, Auth]
+        [HttpPost]
         public Br<bool> DelDict(int cid)
         {
             var result = config.DelDict(cid);
             return new Br<bool> { Data = result };
         }
 
-        [HttpPost, Auth]
-        public Br<List<AtomCateConfigModel>> GetDictsByParentCode(string dictCode)
+        [HttpPost]
+        public Br<List<AtomCateConfigModel>> GetDictsByParentCode(string dictCode, bool hasDisable = false)
         {
-            var result = config.GetCates(dictCode);
-            return new Br<List<AtomCateConfigModel>>(result);
+            var result = config.GetCates(dictCode ,hasDisable);
+            var reBr = new Br<List<AtomCateConfigModel>>(result);
+            return reBr;
         }
 
         [HttpPost]
@@ -173,6 +174,15 @@ namespace Edu.Api.Controllers
         public async Task LoggerView()
         {
             var html = logger.Html();
+            Response.ContentType = "text/html";
+            var data = Encoding.UTF8.GetBytes(html);
+            await Response.Body.WriteAsync(data, 0, data.Length);
+        }
+
+        [HttpGet]
+        public async Task ConfigerView()
+        {
+            var html = config.Html();
             Response.ContentType = "text/html";
             var data = Encoding.UTF8.GetBytes(html);
             await Response.Body.WriteAsync(data, 0, data.Length);
