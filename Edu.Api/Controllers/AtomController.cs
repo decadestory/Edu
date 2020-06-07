@@ -26,35 +26,6 @@ namespace Edu.Api.Controllers
         public IALogger logger { get; set; }
 
         [HttpPost, Auth]
-        public Br<bool> AddAtomConfig(AtomConfigModel model)
-        {
-            var result = config.Set(model, true);
-            return new Br<bool>(result > 0);
-        }
-
-        [HttpPost, Auth]
-        public Br<bool> EditAtomConfig(AtomConfigModel model)
-        {
-            var result = config.Set(model, false);
-            return new Br<bool>(result > 0);
-        }
-
-        [HttpPost, Auth]
-        public Br<int> DelAtomConfig(int configId)
-        {
-            var result = config.Del(configId);
-            return new Br<int>(result);
-        }
-
-        [HttpPost, Auth]
-        public Br<List<NAtomConfigModel>> SearchAtomConfig(NAtomConfigModel request)
-        {
-            var result = config.SearchAtomConfig(request);
-            return new Br<List<NAtomConfigModel>> { Data = result.Item1, ExtData = result.Item2 };
-        }
-
-
-        [HttpPost, Auth]
         public Br<NPermissionModel> SearchPermission(NPermissionModel request)
         {
             var result = new NPermissionModel();

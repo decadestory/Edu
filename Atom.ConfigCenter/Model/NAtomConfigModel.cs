@@ -41,7 +41,7 @@ namespace Atom.ConfigCenter.Model
         public int AddUserId { get; set; }
         public DateTime? EditTime { get; set; }
         public int EditUserId { get; set; }
-        public bool IsValid { get; set; }
+        public bool? IsValid { get; set; }
         public int? Level { get; set; }
         public string Value { get; set; }
         public string ScdValue { get; set; }

@@ -15,196 +15,12 @@ namespace Atom.ConfigCenter.DataCore
 
         public  static bool CheckOrCreateDb()
         {
-            var resB = SonFact.Cur.CreateTable<AtomConfig>();
             var resA = SonFact.Cur.CreateTable<AtomCateConfig>();
-            var resC = SonFact.Cur.CreateTable<AtomConfigValue>();
-            return resA && resB && resB;
+            var resB = SonFact.Cur.CreateTable<AtomConfigValue>();
+            return resA && resB;
         }
 
-        public static long Set(AtomConfig ac, bool isAdd)
-        {
-            if (string.IsNullOrWhiteSpace(ac.ConfigCode))
-                throw new Exception("配置编码不可为空");
-            if (string.IsNullOrWhiteSpace(ac.ConfigValue))
-                throw new Exception("配置值不可为空");
-
-            lock (locker)
-            {
-                var exist = SonFact.Cur.Top<AtomConfig>(t => t.ConfigCode == ac.ConfigCode);
-                if (exist != null && isAdd) throw new Exception("code 已经存在");
-                if (exist != null && !isAdd)
-                {
-                    ac.ConfigId = exist.ConfigId;
-                    var result = SonFact.Cur.Update(ac);
-                    return Convert.ToInt64(result);
-                }
-
-                return SonFact.Cur.Insert(ac);
-            }
-        }
-
-        public static int Del(int id)
-        {
-            var res = SonFact.Cur.Delete<AtomConfig>(id);
-            return res; 
-        }
-
-        public static long SetCate(AtomCateConfig acc, bool isAdd)
-        {
-            if (string.IsNullOrWhiteSpace(acc.CateName))
-                throw new Exception("名称不可为空");
-            if (string.IsNullOrWhiteSpace(acc.CateCode))
-                throw new Exception("配置值不可为空");
-
-            lock (locker)
-            {
-                var exist = SonFact.Cur.Top<AtomCateConfig>(t => t.CateCode == acc.CateCode);
-                if (exist != null && isAdd) throw new Exception("cate code 已经存在");
-                if (exist != null && !isAdd)
-                {
-                    acc.ConfigCateId = exist.ConfigCateId;
-                    var result = SonFact.Cur.Update(acc);
-                    return Convert.ToInt64(result);
-                }
-
-                return SonFact.Cur.Insert(acc);
-            }
-        }
-
-        public static List<AtomCateConfigModel> GetCates(string parentCode,bool hasDisable=false)
-        {
-            var result = hasDisable ? SonFact.Cur.ExecuteQuery<AtomCateConfigModel>($"select * from AtomCateConfig  where  isnull(ParentCateCode,'')='{parentCode}' order by sort") 
-                : SonFact.Cur.ExecuteQuery<AtomCateConfigModel>($"select * from AtomCateConfig  where isvalid=1 and isnull(ParentCateCode,'')='{parentCode}' order by sort");
-            //var result = SonFact.Cur.FindMany<AtomCateConfig, AtomCateConfigModel>(t => t.ParentCateCode == parentCode && t.IsValid == true);
-            if (!result.Any()) return new List<AtomCateConfigModel>();
-            return result;
-        }
-
-        public static List<AtomCateConfigModel> GetCatesByDomain(string parentCode,int domainId)
-        {
-            if (domainId == 0) return GetCates(parentCode);
-            var result = SonFact.Cur.FindMany<AtomCateConfig, AtomCateConfigModel>(t => t.ParentCateCode == parentCode && t.IsValid == true && (t.DomainId==domainId ||t.DomainId==0));
-            result = result.OrderBy(t => t.Sort).ToList();
-            if (!result.Any()) return new List<AtomCateConfigModel>();
-            return result;
-        }
-
-
-        public static long SetVal(AtomConfigValue acv, bool isAdd)
-        {
-            if (string.IsNullOrWhiteSpace(acv.CateCode))
-                throw new Exception("编码不可为空");
-            if (string.IsNullOrWhiteSpace(acv.CateValue))
-                throw new Exception("配置值不可为空");
-
-            lock (locker)
-            {
-                var existCate = SonFact.Cur.Top<AtomCateConfig>(t => t.CateCode == acv.CateCode);
-                if (existCate == null) throw new Exception("配置Cate不存在");
-
-                var exist = SonFact.Cur.Top<AtomConfigValue>(t => t.CateCode == acv.CateCode && t.RelId == acv.RelId && t.ValueType == acv.ValueType);
-                if (exist != null && isAdd) throw new Exception("配置已经存在");
-                if (exist != null && !isAdd)
-                {
-                    acv.ConfigValueId = exist.ConfigValueId;
-                    var result = SonFact.Cur.Update(acv);
-                    return Convert.ToInt64(result);
-                }
-
-                return SonFact.Cur.Insert(acv);
-            }
-        }
-
-        public static AtomConfigModel Get(string code)
-        {
-            var now = DateTime.Now;
-            var result = SonFact.Cur.Top<AtomConfig, AtomConfigModel>(t => t.ConfigCode == code && t.IsValid == true);
-
-            if (result == null) return null;
-            if (result.StartTime != null && result.StartTime.Value > now) return null;
-            if (result.EndTime != null && result.EndTime.Value < now) return null;
-
-            return result;
-        }
-
-        public static AtomConfigModel Gets(string parentCode)
-        {
-            var now = DateTime.Now;
-            var result = SonFact.Cur.Top<AtomConfig, AtomConfigModel>(t => t.ConfigCode == parentCode && t.IsValid == true);
-            if (result.StartTime != null && result.StartTime.Value > now) return null;
-            if (result.EndTime != null && result.EndTime.Value < now) return null;
-            if (result == null) return null;
-
-            result.AtomChildren = new List<AtomConfigModel>();
-
-            var list = SonFact.Cur.FindMany<AtomConfig, AtomConfigModel>(t => t.ParentCode == result.ConfigCode && t.IsValid == true);
-
-            foreach (var item in list)
-            {
-                if (item.StartTime != null && item.StartTime.Value > now) continue;
-                if (item.EndTime != null && item.EndTime.Value < now) continue;
-                result.AtomChildren.Add(item);
-            }
-
-            return result;
-        }
-
-        public static AtomCateConfigModel Get(int relId, string cateCode)
-        {
-            var result = new AtomCateConfigModel();
-            result.Values = new List<AtomConfigValueModel>();
-            var now = DateTime.Now;
-            var list = SonFact.Cur.FindMany<AtomConfigValue, AtomConfigValueModel>(t => t.IsValid == true && t.CateCode == cateCode && (t.RelId == relId || t.ValueType=="default"));
-
-            foreach (var item in list)
-            {
-                if (item.StartTime != null && item.StartTime.Value > now) continue;
-                if (item.EndTime != null && item.EndTime.Value < now) continue;
-                result.Values.Add(item);
-            }
-            return result;
-        }
-
-        public static AtomCateConfigModel GetAllById(int relId)
-        {
-            var result = new AtomCateConfigModel();
-            result.Children = new List<AtomCateConfigModel>();
-            var now = DateTime.Now;
-
-            var cates = SonFact.Cur.FindMany<AtomConfigValue, AtomConfigValueModel>(t => t.IsValid == true  &&  (t.RelId == relId || t.ValueType == "default"));
-            foreach (var item in cates)
-            {
-                if (item.StartTime != null && item.StartTime.Value > now) continue;
-                if (item.EndTime != null && item.EndTime.Value < now) continue;
-                result.Values.Add(item);
-            }
-
-            var cateCodes = cates.Select(t => t.CateCode).Distinct();
-
-            foreach (var c in cateCodes) {
-                var vs = Get(relId,c);
-                result.Children.Add(vs);
-            }
-            return result;
-        }
-
-        public  static Tuple<List<NAtomConfigModel>,int> SearchAtomConfig(NAtomConfigModel request)
-        {
-            var where = new StringBuilder(" 1=1");
-            if (!string.IsNullOrWhiteSpace(request.KeyWord))
-                where.AppendFormat(" and (ConfigCode like '%{0}%' or ConfigDesc like '%{0}%')", request.KeyWord);
-
-            var sql = string.Format(@"with cte as (select ROW_NUMBER() over (order by configid) num,* from AtomConfig (nolock) where {0} ) ", where);
-            var sqlCnt = string.Format(@"{0} select count(1) from cte", sql);
-            var sqlList = string.Format(@"{0} select top {1}* from cte where num>{2}", sql, request.PageSize, request.Skip);
-
-            var cnt = SonFact.Cur.ExecuteQuery<int>(sqlCnt).First();
-            var list = SonFact.Cur.ExecuteQuery<NAtomConfigModel>(sqlList).ToList();
-
-            return new Tuple<List<NAtomConfigModel>, int>(list, cnt);
-        }
-
-        //字典管理
+        //配置管理
         public static List<NAtomCateConfigModel> SearchDict(NAtomCateConfigModel request, int domid=0)
         {
             var list = new List<NAtomCateConfigModel>();
@@ -213,7 +29,7 @@ namespace Atom.ConfigCenter.DataCore
             if (domid != 0)
                 oldlisttmp = oldlisttmp.Where(t => t.DomainId == 0 || t.DomainId == domid).ToList();
 
-            var firsts = oldlisttmp.Where(t => t.ParentCateCode == null).ToList();
+            var firsts = oldlisttmp.Where(t => t.ParentCateCode == null || t.ParentCateCode=="").ToList();
             if (!firsts.Any()) return list;
 
             //if (request.ExpceptCustom == true)
@@ -250,7 +66,7 @@ namespace Atom.ConfigCenter.DataCore
         public static bool AddDict(NAtomCateConfigModel model,int domid=0)
         {
             var exist = SonFact.Cur.Top<AtomCateConfig>(t => t.CateCode == model.CateCode);
-            if (exist != null) throw new Exception("呵呵！字典代码重复,请修改");
+            if (exist != null) throw new Exception("呵呵！配置代码重复,请修改");
 
             var newPer = EntityMapper.Mapper<NAtomCateConfigModel, AtomCateConfig>(model);
             newPer.AddTime = DateTime.Now;
@@ -264,19 +80,15 @@ namespace Atom.ConfigCenter.DataCore
             return result > 0;
         }
 
-        //public static string GetNameByCode(string code)
-        //{
-        //    var cate = SonFact.Cur.Top<AtomCateConfig>(t => t.CateCode == code);
-        //    return cate.CateName;
-        //}
-
         public static bool EditDict(NAtomCateConfigModel model)
         {
             var existCode =SonFact.Cur.Top<AtomCateConfig>(t => t.CateCode == model.CateCode && t.ConfigCateId != model.ConfigCateId);
             if (existCode != null) throw new Exception("呵呵！字典代码重复,请修改");
 
+            if (!model.IsValid.HasValue) return DelDict(model.ConfigCateId);
+
             var exist =SonFact.Cur.Top<AtomCateConfig>(t => t.ConfigCateId == model.ConfigCateId);
-            exist.IsValid = model.IsValid;
+            exist.IsValid = model.IsValid.Value;
             exist.CateName = model.CateName;
             exist.CateCode = model.CateCode;
             exist.ExtCateCode = model.ExtCateCode;
@@ -306,6 +118,99 @@ namespace Atom.ConfigCenter.DataCore
             var result = SonFact.Cur.Delete<AtomCateConfig>(cid);
             return result > 0;
         }
+
+        public static List<AtomCateConfigModel> GetCates(string parentCode, bool hasDisable = false)
+        {
+            var result = hasDisable ? SonFact.Cur.ExecuteQuery<AtomCateConfigModel>($"select * from AtomCateConfig  where  isnull(ParentCateCode,'')='{parentCode}' order by sort")
+                : SonFact.Cur.ExecuteQuery<AtomCateConfigModel>($"select * from AtomCateConfig  where isvalid=1 and isnull(ParentCateCode,'')='{parentCode}' order by sort");
+            //var result = SonFact.Cur.FindMany<AtomCateConfig, AtomCateConfigModel>(t => t.ParentCateCode == parentCode && t.IsValid == true);
+            if (!result.Any()) return new List<AtomCateConfigModel>();
+            return result;
+        }
+
+        public static List<AtomCateConfigModel> GetCatesByDomain(string parentCode, int domainId)
+        {
+            if (domainId == 0) return GetCates(parentCode);
+            var result = SonFact.Cur.FindMany<AtomCateConfig, AtomCateConfigModel>(t => t.ParentCateCode == parentCode && t.IsValid == true && (t.DomainId == domainId || t.DomainId == 0));
+            result = result.OrderBy(t => t.Sort).ToList();
+            if (!result.Any()) return new List<AtomCateConfigModel>();
+            return result;
+        }
+
+        public static List<AtomCateConfigModel> Get(string code)
+        {
+            var result = SonFact.Cur.ExecuteQuery<AtomCateConfigModel>($"select * from AtomCateConfig  where CateCode='{code}'");
+            if (!result.Any()) return new List<AtomCateConfigModel>();
+            return result;
+        }
+
+
+        //明细配置管理
+        public static long SetVal(AtomConfigValue acv, bool isAdd)
+        {
+            if (string.IsNullOrWhiteSpace(acv.CateCode))
+                throw new Exception("编码不可为空");
+            if (string.IsNullOrWhiteSpace(acv.CateValue))
+                throw new Exception("配置值不可为空");
+
+            lock (locker)
+            {
+                var existCate = SonFact.Cur.Top<AtomCateConfig>(t => t.CateCode == acv.CateCode);
+                if (existCate == null) throw new Exception("配置Cate不存在");
+
+                var exist = SonFact.Cur.Top<AtomConfigValue>(t => t.CateCode == acv.CateCode && t.RelId == acv.RelId && t.ValueType == acv.ValueType);
+                if (exist != null && isAdd) throw new Exception("配置已经存在");
+                if (exist != null && !isAdd)
+                {
+                    acv.ConfigValueId = exist.ConfigValueId;
+                    var result = SonFact.Cur.Update(acv);
+                    return Convert.ToInt64(result);
+                }
+
+                return SonFact.Cur.Insert(acv);
+            }
+        }
+
+        public static AtomCateConfigModel Get(int relId, string cateCode)
+        {
+            var result = new AtomCateConfigModel();
+            result.Values = new List<AtomConfigValueModel>();
+            var now = DateTime.Now;
+            var list = SonFact.Cur.FindMany<AtomConfigValue, AtomConfigValueModel>(t => t.IsValid == true && t.CateCode == cateCode && (t.RelId == relId || t.ValueType == "default"));
+
+            foreach (var item in list)
+            {
+                if (item.StartTime != null && item.StartTime.Value > now) continue;
+                if (item.EndTime != null && item.EndTime.Value < now) continue;
+                result.Values.Add(item);
+            }
+            return result;
+        }
+
+        public static AtomCateConfigModel GetAllById(int relId)
+        {
+            var result = new AtomCateConfigModel();
+            result.Children = new List<AtomCateConfigModel>();
+            var now = DateTime.Now;
+
+            var cates = SonFact.Cur.FindMany<AtomConfigValue, AtomConfigValueModel>(t => t.IsValid == true && (t.RelId == relId || t.ValueType == "default"));
+            foreach (var item in cates)
+            {
+                if (item.StartTime != null && item.StartTime.Value > now) continue;
+                if (item.EndTime != null && item.EndTime.Value < now) continue;
+                result.Values.Add(item);
+            }
+
+            var cateCodes = cates.Select(t => t.CateCode).Distinct();
+
+            foreach (var c in cateCodes)
+            {
+                var vs = Get(relId, c);
+                result.Children.Add(vs);
+            }
+            return result;
+        }
+
 
     }
 }

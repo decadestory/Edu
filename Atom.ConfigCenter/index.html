@@ -30,15 +30,15 @@
                     </el-form-item>
                 </el-form>
                 <el-table :data="tableData" class="table" stripe border v-loading="query.loading" @row-click="rowClick">
-                    <el-table-column prop="CateName" label="字典名称"></el-table-column>
-                    <el-table-column prop="CateCode" label="字典编码"></el-table-column>
+                    <el-table-column prop="CateName" label="配置名称"></el-table-column>
+                    <el-table-column prop="CateCode" label="配置编码"></el-table-column>
                     <el-table-column prop="ParentCateCode" label="上级代码"></el-table-column>
-                    <el-table-column prop="ExtCateCode" label="扩展代码"></el-table-column>
+                    <el-table-column prop="ExtCateCode" label="分类代码"></el-table-column>
                     <el-table-column prop="Level" label="层级" width="50px"></el-table-column>
                     <el-table-column prop="Sort" label="排序" width="50px"></el-table-column>
-                    <el-table-column prop="Value" label="值" width="50px"></el-table-column>
-                    <el-table-column prop="ScdValue" label="值二" width="50px"></el-table-column>
-                    <el-table-column prop="ThdValue" label="值三" width="50px"></el-table-column>
+                    <el-table-column prop="Value" label="值" ></el-table-column>
+                    <el-table-column prop="ScdValue" label="值二" ></el-table-column>
+                    <el-table-column prop="ThdValue" label="值三" ></el-table-column>
 
                         <el-table-column label="状态" width="80px">
                             <template slot-scope="scope">
@@ -55,22 +55,28 @@
                 </el-table>
 
 
-                <el-dialog :title="dialogTitle" :visible.sync="showNewDialog">
+                <el-dialog :title="dialogTitle" :visible.sync="showNewDialog" :close-on-click-modal="false">
                     <el-form ref="newModel" :model="newModel" :rules="rules" label-width="120px">
                         <el-form-item label="上级代码" prop="ParentCode">
                             <el-input v-model="newModel.ParentCateCode" disabled></el-input>
                         </el-form-item>
 
-                        <el-form-item label="字典名称" prop="CateName">
+                        <el-form-item label="配置名称" prop="CateName">
                             <el-input v-model="newModel.CateName"></el-input>
                         </el-form-item>
 
-                        <el-form-item label="字典代码" prop="CateCode">
+                        <el-form-item label="配置代码" prop="CateCode">
                             <el-input v-model="newModel.CateCode"></el-input>
                         </el-form-item>
 
                         <el-form-item label="层级" prop="Level">
                             <el-input v-model="newModel.Level" disabled></el-input>
+                        </el-form-item>
+
+                      
+
+                        <el-form-item label="分类代码" prop="ExtCateCode">
+                            <el-input v-model="newModel.ExtCateCode"></el-input>
                         </el-form-item>
 
                         <el-form-item label="值一" prop="Value">
@@ -83,10 +89,6 @@
                             <el-input v-model="newModel.ThdValue"></el-input>
                         </el-form-item>
 
-                        <el-form-item label="扩展代码" prop="ExtCateCode">
-                            <el-input v-model="newModel.ExtCateCode"></el-input>
-                        </el-form-item>
-
                         <el-form-item label="平台" prop="DomainId">
                             <el-select v-model="newModel.DomainId">
                                 <el-option size="mini" :key="0" label="全平台" :value="0"></el-option>
@@ -95,19 +97,24 @@
                             </el-select>
                         </el-form-item>
 
+                        <el-form-item label="排序" prop="Level">
+                            <el-input-number type="number" v-model="newModel.Sort"></el-input-number>
+                        </el-form-item>
+
                         <el-form-item label="是否启用" prop="IsValid">
                             <el-select v-model="newModel.IsValid">
                                 <el-option :key="1" label="启用" :value="true"></el-option>
                                 <el-option :key="0" label="禁用" :value="false"></el-option>
+                                <el-option :key="-1" label="删除" value=""></el-option>
                             </el-select>
                         </el-form-item>
 
-                        <el-form-item v-if="dialogTitle!='修改字典'">
-                            <el-button type="primary" :loading="editLoading" @click="add">添加字典</el-button>
+                        <el-form-item v-if="dialogTitle!='修改配置'">
+                            <el-button type="primary" :loading="editLoading" @click="add">添加配置</el-button>
                         </el-form-item>
 
-                        <el-form-item v-if="dialogTitle=='修改字典'">
-                            <el-button type="primary" :loading="editLoading" @click="edit">修改字典</el-button>
+                        <el-form-item v-if="dialogTitle=='修改配置'">
+                            <el-button type="primary" :loading="editLoading" @click="edit">修改配置</el-button>
                         </el-form-item>
                     </el-form>
                 </el-dialog>
@@ -137,15 +144,15 @@
                 tableData: [],
                 clickHistory: [],
                 showNewDialog: false,
-                dialogTitle: '添加字典',
-                newModel: { DomainId: 0, IsValid: true, },
+                dialogTitle: '添加配置',
+                newModel: {},
                 domains: [{ Key: 1, Name: '平台1' }, { Key: 2, Name: '平台2' }, { Key: 3, Name: '平台3' }],
                 editLoading: false,
                 rules: {
                     CateName: [
-                        { required: true, message: "请输入字典名称", trigger: "blur" }
+                        { required: true, message: "请输入配置名称", trigger: "blur" }
                     ],
-                    CateCode: [{ required: true, message: "请输入字典代码", trigger: "blur" }]
+                    CateCode: [{ required: true, message: "请输入配置代码", trigger: "blur" }]
                 }
             }
         },
@@ -184,11 +191,15 @@
             showAdd() {
                 console.info(this.curDict);
                 this.showNewDialog = true;
+                this.dialogTitle = "添加配置";
 
                 this.newModel = {
                     DomainId: 0,
                     IsValid: true,
                     ParentCateCode: this.query.parent,
+                    CateName:'',
+                    CateCode:'',
+                    Sort:0
                 };
 
                 this.newModel.Level = this.curDict.Level || this.curDict.Level == 0 ? parseInt(this.curDict.Level) + 1 : 0;
@@ -201,7 +212,7 @@
                         this.editLoading = true;
                         axios.post(`${this.apiUrl}/api/Atom/AddDict`, this.newModel).then(res => {
                             this.editLoading = false;
-                            if (res.data.Code != 1) return;
+                            if (res.data.Code != 1) return this.$message({ message: res.data.Message, type: "warning" });;
                             this.showNewDialog = false;
                             this.$message({ message: "添加成功", type: "success" });
                             this.search();
@@ -212,7 +223,7 @@
 
             showEdit(row, column, event) {
                 this.newModel = row;
-                this.dialogTitle = "修改字典";
+                this.dialogTitle = "修改配置";
                 this.showNewDialog = true;
             },
 
@@ -222,7 +233,7 @@
                         this.editLoading = true;
                         axios.post(`${this.apiUrl}/api/Atom/EditDict`, this.newModel).then(res => {
                             this.editLoading = false;
-                            if (res.data.Code != 1) return;
+                            if (res.data.Code != 1) return this.$message({ message: res.data.Message, type: "warning" });;
                             this.showNewDialog = false;
                             this.$message({ message: "修改成功", type: "success" });
                             this.search();
