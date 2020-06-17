@@ -32,7 +32,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Atom.ConfigCenter", "Atom.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Atom.Permissioner", "Atom.Permissioner\Atom.Permissioner.csproj", "{FA5364F2-018E-44A6-8850-BC84049B34F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atom.Templater", "Atom.Templater\Atom.Templater.csproj", "{A2E8ED51-0BD2-4338-B021-49877FBA8C18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Atom.Templater", "Atom.Templater\Atom.Templater.csproj", "{A2E8ED51-0BD2-4338-B021-49877FBA8C18}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Atom.Starter", "Atom.Starter\Atom.Starter.csproj", "{D59E18A7-467D-4651-9944-40CD143FF848}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,6 +90,10 @@ Global
 		{A2E8ED51-0BD2-4338-B021-49877FBA8C18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2E8ED51-0BD2-4338-B021-49877FBA8C18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2E8ED51-0BD2-4338-B021-49877FBA8C18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D59E18A7-467D-4651-9944-40CD143FF848}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D59E18A7-467D-4651-9944-40CD143FF848}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D59E18A7-467D-4651-9944-40CD143FF848}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D59E18A7-467D-4651-9944-40CD143FF848}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -100,6 +106,7 @@ Global
 		{14517EBB-71BA-47FA-A896-E44FC62AE62C} = {C33F8796-2EA6-4A2E-AE37-FC36553EB1A4}
 		{FA5364F2-018E-44A6-8850-BC84049B34F7} = {C33F8796-2EA6-4A2E-AE37-FC36553EB1A4}
 		{A2E8ED51-0BD2-4338-B021-49877FBA8C18} = {C33F8796-2EA6-4A2E-AE37-FC36553EB1A4}
+		{D59E18A7-467D-4651-9944-40CD143FF848} = {C33F8796-2EA6-4A2E-AE37-FC36553EB1A4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1054E616-E4B6-4A92-8AE8-CC092F1B63DF}
