@@ -5,25 +5,19 @@ using System.Text;
 
 namespace Atom.Starter.Model
 {
-    internal class AtomProject
+    internal class AtomStarterLog
     {
-        [Description("项目Id")]
+        [Description("日志Id")]
         public int Id { get; set; }
 
-        [Description("项目名称")]
+        [Description("项目Id")]
+        public int ProjectId { get; set; }
+
+        [Description("日志类型")]
+        public int LogType { get; set; }
+
+        [Description("列名称")]
         public string Name { get; set; }
-
-        [Description("项目描述")]
-        public string Desc { get; set; }
-
-        [Description("项目图标")]
-        public string Icon { get; set; }
-
-        [Description("数据库名称")]
-        public string DbName { get; set; }
-
-        [Description("数据库连接")]
-        public string DbConnStr { get; set; }
 
         [Description("添加时间")]
         public DateTime AddTime { get; set; }

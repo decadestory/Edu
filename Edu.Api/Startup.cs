@@ -31,6 +31,7 @@ using Atom.ConfigCenter;
 using Atom.Permissioner;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Atom.Starter;
 
 namespace Edu.Api
 {
@@ -146,6 +147,9 @@ namespace Edu.Api
 
             //注册权限管理
             builder.Register(l => new Permissioner(connStr)).As<IPermissioner>().PropertiesAutowired().SingleInstance();
+
+            //注册启动项目管理
+            builder.Register(l => new AStarter(connStr)).As<IAStarter>().PropertiesAutowired().SingleInstance();
 
         }
 

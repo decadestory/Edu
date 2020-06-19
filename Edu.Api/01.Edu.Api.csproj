@@ -36,6 +36,7 @@
     <ProjectReference Include="..\Atom.Lib\Atom.Lib.csproj" />
     <ProjectReference Include="..\Atom.Logger\Atom.Logger.csproj" />
     <ProjectReference Include="..\Atom.Permissioner\Atom.Permissioner.csproj" />
+    <ProjectReference Include="..\Atom.Starter\Atom.Starter.csproj" />
     <ProjectReference Include="..\Edu.Model\04.Edu.Model.csproj" />
     <ProjectReference Include="..\Edu.Repo\03.Edu.Repo.csproj" />
     <ProjectReference Include="..\Edu.Svc\02.Edu.Svc.csproj" />

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Atom.Starter.Model
 {
-    internal class AtomProject
+    public class AtomProjectModel
     {
         [Description("项目Id")]
         public int Id { get; set; }
