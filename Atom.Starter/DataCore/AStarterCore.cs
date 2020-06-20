@@ -1,5 +1,6 @@
 ﻿using Atom.Starter.Model;
 using Orm.Son.Core;
+using Orm.Son.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,24 +22,36 @@ namespace Atom.Starter.DataCore
             return true;
         }
 
-        public bool AddProject(AtomProjectModel model)
+        public long AddOrEditProject(AtomProjectModel model)
         {
-
+            if (model.Id > 0) goto edit;
+            var en = EntityMapper.Mapper<AtomProjectModel, AtomProject>(model);
+            en.AddTime = DateTime.Now;
+            en.EditTime = DateTime.Now;
+            en.AddUserId = 0;
+            en.EditUserId = 0;
+            en.IsValid = true;
+            var res = SonFact.Cur.Insert(en);
+            return res;
+            edit:
+            if (!model.IsValid.HasValue) return SonFact.Cur.Delete<AtomProject>(model.Id);
+            var edn = EntityMapper.Mapper<AtomProjectModel, AtomProject>(model);
+            edn.EditTime = DateTime.Now;
+            edn.EditUserId = 0;
+            var rows = SonFact.Cur.Update(edn);
+            return rows;
         }
 
-
-        public enum LogLevel
+        public bool CreateDb(AtomProjectModel model) 
         {
-            Info = 1,
-            Warn = 2,
-            Error = 3,
-            Fatal = 4,
-            Monitor = 5,
-            Exception = 6,
-            Debug = 7,
+            if (model.Id <= 0) throw new Exception("请选择项目");
+            var en = SonFact.Cur.Find<AtomProject>(model.Id);
+
+            var sql = string .Format("if not exists(select top 1 * from sys.databases where name='test') create database '{0}' ", en.DbName);
+
+            return true;
         }
-
-
+        
 
     }
 }

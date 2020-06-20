@@ -1,4 +1,5 @@
 ﻿using Atom.Starter.DataCore;
+using Atom.Starter.Model;
 using Orm.Son.Core;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,11 @@ namespace Atom.Starter
         {
             SonFact.init(dbConnStr);
             rep.CheckOrCreateDb();
+        }
+
+        public long AddOrEditProject(AtomProjectModel model)
+        {
+            return rep.AddOrEditProject(model);
         }
 
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Atom.Lib;
 using Atom.Starter;
+using Atom.Starter.Model;
 using Edu.Api.Infrastructure.Filters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +15,11 @@ namespace Edu.Api.Controllers
     {
         public IAStarter starter { get; set; }
 
-        [HttpPost, Auth]
-        public Br<bool> AddProject()
+        [HttpPost, CheckParams]
+        public Br<long> AddOrEditProject(AtomProjectModel model)
         {
-            return new Br<bool>(true);
+            var res = starter.AddOrEditProject(model);
+            return new Br<long>(res);
         }
 
     }
