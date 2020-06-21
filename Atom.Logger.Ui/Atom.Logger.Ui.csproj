@@ -12,4 +12,8 @@
     <ProjectReference Include="..\Atom.Logger\Atom.Logger.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="htmls\" />
+  </ItemGroup>
+
 </Project>
