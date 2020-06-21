@@ -50,9 +50,7 @@ namespace Atom.ConfigCenter.Model
         public string CateValue { get; set; }
         public string ValueType { get; set; }
         public bool ExpceptCustom { get; set; }
-
     }
-
 
 
     public class AddTaskDictRequest

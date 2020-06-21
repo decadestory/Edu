@@ -9,16 +9,25 @@ namespace Atom.Starter
     public class AStarter : IAStarter
     {
         internal AStarterCore rep = new AStarterCore();
-        internal string ServerSrc = null;
-        public AStarter(string dbConnStr)
+        public AStarter(string dbConnStr,string projectName="Atom项目", string projectDesc= "Atom项目描述")
         {
             SonFact.init(dbConnStr);
-            rep.CheckOrCreateDb();
+            rep.CheckOrCreateDb(projectName,projectDesc);
         }
 
-        public long AddOrEditProject(AtomProjectModel model)
+        public long AddOrEditTable(AtomDbTableModel model)
         {
-            return rep.AddOrEditProject(model);
+            return rep.AddOrEditTable(model);
+        }
+
+        public Tuple<long, bool> AddOrEditDoc(AtomProjectDocModel model)
+        {
+            return rep.AddOrEditDoc(model);
+        }
+
+        public List<AtomProjectDocModel> Docs(AtomProjectDocModel model)
+        {
+            return rep.Docs(model);
         }
 
     }

@@ -32,6 +32,9 @@ using Atom.Permissioner;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Atom.Starter;
+using Atom.Logger.Ui;
+using Atom.Starter.Ui;
+using Atom.ConfigCenter.Ui;
 
 namespace Edu.Api
 {
@@ -111,8 +114,7 @@ namespace Edu.Api
         public void ConfigureContainer(ContainerBuilder builder)
         {
             //注册controller 注册之后才可以在controller里使用Autofac属性注入
-            var controllersTypesInAssembly = typeof(Startup).Assembly.GetExportedTypes()
-            .Where(type => typeof(ControllerBase).IsAssignableFrom(type)).ToArray();
+            var controllersTypesInAssembly = typeof(Startup).Assembly.GetExportedTypes().Where(type => typeof(ControllerBase).IsAssignableFrom(type)).ToArray();
             builder.RegisterTypes(controllersTypesInAssembly).PropertiesAutowired();
 
             //注册EFCore为Scope模式
@@ -141,16 +143,19 @@ namespace Edu.Api
             var logConnStr = Configuration.GetValue<string>("ConnectionStrings:DbLogConn");
             var logSvcStr = Configuration.GetValue<string>("AppSetting:LoggerSvc");
             builder.Register(l => new ALogger(logConnStr, logSvcStr)).As<IALogger>().PropertiesAutowired().SingleInstance();
+            builder.RegisterType(typeof(LoggerController)).PropertiesAutowired();
+
 
             //注册配置中心
             builder.Register(l => new AtomConfigCenter(connStr)).As<IAtomConfigCenter>().PropertiesAutowired().SingleInstance();
+            builder.RegisterType(typeof(ConfigCenterController)).PropertiesAutowired();
 
             //注册权限管理
             builder.Register(l => new Permissioner(connStr)).As<IPermissioner>().PropertiesAutowired().SingleInstance();
 
             //注册启动项目管理
             builder.Register(l => new AStarter(connStr)).As<IAStarter>().PropertiesAutowired().SingleInstance();
-
+            builder.RegisterType(typeof(AtomStarterController)).PropertiesAutowired();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

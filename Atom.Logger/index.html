@@ -99,8 +99,8 @@
             search(hold) {
                 if (hold !== true) this.query.PageIndex = 1;
                 this.query.loading = true;
-                //axios.post(window.location.origin+'/api/Atom/Logs', this.query).then(res => {
-                    axios.post('http://localhost:55166/api/Atom/Logs', this.query).then(res => {
+                //axios.post(window.location.origin+'/Atom/Logs', this.query).then(res => {
+                axios.post('http://localhost:55166/Atom/Logs', this.query).then(res => {
                         this.query.loading = false;
                         this.tableData = res.data.Data;
                         this.query.total = res.data.ExtData;

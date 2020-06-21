@@ -19,12 +19,6 @@ namespace Atom.Starter.Model
         [Description("项目图标")]
         public string Icon { get; set; }
 
-        [Description("数据库名称")]
-        public string DbName { get; set; }
-
-        [Description("数据库连接")]
-        public string DbConnStr { get; set; }
-
         [Description("添加时间")]
         public DateTime AddTime { get; set; }
 

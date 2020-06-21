@@ -5,22 +5,19 @@ using System.Text;
 
 namespace Atom.Starter.Model
 {
-    internal class AtomStarterLog
+    public class AtomDbTableModel
     {
-        [Description("日志Id")]
+        [Description("表Id")]
         public int Id { get; set; }
+
+        [Description("表名称")]
+        public string Name { get; set; }
+
+        [Description("数据库表名")]
+        public string DbTableName { get; set; }
 
         [Description("项目Id")]
         public int ProjectId { get; set; }
-
-        [Description("日志类型")]
-        public int LogType { get; set; }
-
-        [Description("表列名称")]
-        public string Name { get; set; }
-
-        [Description("日志内容")]
-        public string LogTxt { get; set; }
 
         [Description("添加时间")]
         public DateTime AddTime { get; set; }
@@ -35,6 +32,6 @@ namespace Atom.Starter.Model
         public int EditUserId { get; set; }
 
         [Description("是否可用")]
-        public bool IsValid { get; set; }
+        public bool? IsValid { get; set; }
     }
 }

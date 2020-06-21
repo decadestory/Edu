@@ -12,20 +12,19 @@
         <el-container class="wrapper">
             <el-header height="80px">
                 <img src="https://dponlinedownload.parrowtech.com/atom.png" alt="element-logo" class="header-logo"
-                    width="50">
-                <div
-                    style="color:white;font-weight: bold; font-size: 24px; display: inline-block; vertical-align: middle;">
+                     width="50">
+                <div style="color:white;font-weight: bold; font-size: 24px; display: inline-block; vertical-align: middle;">
                     ATOM CONFIGCENTER
                 </div>
                 <ul class="header-operations">
-                    <li>{{curDict.CateName}}</li>
+                    <li>位置：{{curDirs}}</li>
                 </ul>
             </el-header>
 
             <el-main class="content">
                 <el-form inline :model="query" label-position="right" label-width="100px" class="query-form">
                     <el-form-item label=" " label-width="0px">
-                        <el-button type="primary" icon="el-icon-arrow-left" @click="back()">返回</el-button>
+                        <el-button type="primary" icon="el-icon-arrow-left" @click="back()">返回上级</el-button>
                         <el-button type="primary" icon="el-icon-plus" @click="showAdd()">添加</el-button>
                     </el-form-item>
                 </el-form>
@@ -36,15 +35,16 @@
                     <el-table-column prop="ExtCateCode" label="分类代码"></el-table-column>
                     <el-table-column prop="Level" label="层级" width="50px"></el-table-column>
                     <el-table-column prop="Sort" label="排序" width="50px"></el-table-column>
-                    <el-table-column prop="Value" label="值" ></el-table-column>
-                    <el-table-column prop="ScdValue" label="值二" ></el-table-column>
-                    <el-table-column prop="ThdValue" label="值三" ></el-table-column>
+                    <el-table-column prop="Value" label="值"></el-table-column>
+                    <el-table-column prop="ScdValue" label="值二"></el-table-column>
+                    <el-table-column prop="ThdValue" label="值三"></el-table-column>
 
-                        <el-table-column label="状态" width="80px">
-                            <template slot-scope="scope">
-                                <el-tag size="mini" :type="scope.row.IsValid==true ? 'success' : 'danger'" disable-transitions>{{scope.row.IsValid==true ? '启用' : '禁用'}}</el-tag>
-                            </template>
-                        </el-table-column>
+                    <el-table-column label="状态" width="80px">
+                        <template slot-scope="scope">
+                            <el-tag size="mini" :type="scope.row.IsValid==true ? 'success' : 'danger'"
+                                    disable-transitions>{{scope.row.IsValid==true ? '启用' : '禁用'}}</el-tag>
+                        </template>
+                    </el-table-column>
                     </el-table-column>
                     <el-table-column prop="AddTime" label="添加时间" width="160px"></el-table-column>
                     <el-table-column label="操作" width="80px">
@@ -73,7 +73,7 @@
                             <el-input v-model="newModel.Level" disabled></el-input>
                         </el-form-item>
 
-                      
+
 
                         <el-form-item label="分类代码" prop="ExtCateCode">
                             <el-input v-model="newModel.ExtCateCode"></el-input>
@@ -138,11 +138,12 @@
                 apiUrl: 'http://localhost:55166',
                 query: {
                     loading: false,
-                    parent: '',
                 },
-                curDict: {},
+                curDirs: "",
+                clickHistory: [{ CateCode: "", CateName: "/" }],
+                curParent: { CateCode: "" },
+
                 tableData: [],
-                clickHistory: [],
                 showNewDialog: false,
                 dialogTitle: '添加配置',
                 newModel: {},
@@ -163,7 +164,7 @@
             search(hold) {
                 if (hold !== true) this.query.PageIndex = 1;
                 this.query.loading = true;
-                axios.post(`${this.apiUrl}/api/Atom/GetDictsByParentCode?dictCode=${this.query.parent}&hasDisable=true`, this.query).then(res => {
+                axios.post(`${this.apiUrl}/api/Atom/GetDictsByParentCode?dictCode=${this.curParent.CateCode}&hasDisable=true`, this.query).then(res => {
                     this.query.loading = false;
                     this.tableData = res.data.Data;
                     this.query.total = res.data.ExtData;
@@ -171,39 +172,51 @@
                 })
             },
             rowClick(row, column, event) {
-                this.query.parent = row.CateCode;
-                this.search();
-
-                row.ParentCateCode = row.ParentCateCode ?? '';
                 this.clickHistory.push(row);
-                this.curDict = row;
-                console.info('rowClick', this.curDict);
+                this.curParent = row;
+                this.search();
+                this.getCurDirs();
+                console.info('rowClick', this.curParent);
             },
 
             back() {
-                if (this.clickHistory.length <= 0) return;
-                this.query.parent = this.clickHistory.pop().ParentCateCode;
+                if (this.clickHistory.length <= 1) return;
+                this.curParent = this.clickHistory.slice(-2)[0];
+
+                this.clickHistory.pop();
                 this.search();
-                this.curDict = this.clickHistory.slice(-1).length > 0 ? this.clickHistory.slice(-1)[0] : {};
-                console.info('back', this.curDict);
+
+                this.getCurDirs();
+                console.info('back', this.curParent);
+            },
+
+            getCurDirs() {
+                var t = "";
+                for (var i in this.clickHistory) {
+                    var e = this.clickHistory[i];
+                    if (e.CateName == "/") e.CateName = '首页';
+                    t += e.CateName + "/";
+                    console.info('------', e.CateName);
+                }
+                console.info('t', t);
+                this.curDirs = t;
             },
 
             showAdd() {
-                console.info(this.curDict);
                 this.showNewDialog = true;
                 this.dialogTitle = "添加配置";
 
                 this.newModel = {
                     DomainId: 0,
                     IsValid: true,
-                    ParentCateCode: this.query.parent,
-                    CateName:'',
-                    CateCode:'',
-                    Sort:0
+                    ParentCateCode: this.curParent.CateCode,
+                    CateName: '',
+                    CateCode: '',
+                    Sort: 0
                 };
 
-                this.newModel.Level = this.curDict.Level || this.curDict.Level == 0 ? parseInt(this.curDict.Level) + 1 : 0;
-                this.newModel.CateCode = this.curDict.CateCode ? this.curDict.CateCode + "_" : '';
+                this.newModel.Level = this.curParent.Level || this.curParent.Level == 0 ? parseInt(this.curParent.Level) + 1 : 0;
+                this.newModel.CateCode = this.curParent.CateCode ? this.curParent.CateCode + "_" : '';
             },
 
             add() {
@@ -280,12 +293,12 @@
         background-color: rgb(64, 158, 255);
     }
 
-    header::after {
-        display: inline-block;
-        content: "";
-        height: 100%;
-        vertical-align: middle
-    }
+        header::after {
+            display: inline-block;
+            content: "";
+            height: 100%;
+            vertical-align: middle
+        }
 
     .container {
         padding-top: 80px;

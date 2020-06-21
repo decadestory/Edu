@@ -1,4 +1,5 @@
 ﻿using Atom.EF.Base;
+using Atom.Logger;
 using Edu.Entity;
 using Edu.Model;
 using Edu.Repo.Interface;
@@ -11,9 +12,11 @@ namespace Edu.Svc
     public class UserSvc : BaseSvc, IUserSvc
     {
         public  IUserRepo rep { get; set; }
+        public  IALogger logger { get; set; }
 
         public UserTokenModel Auth(AuthModel user)
         {
+            logger.Info("Auth--------------");
             return rep.Auth(user);
         }
 
