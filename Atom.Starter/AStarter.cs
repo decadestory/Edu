@@ -30,5 +30,15 @@ namespace Atom.Starter
             return rep.Docs(model);
         }
 
+        public List<AtomDbTableModel> Tables(AtomDbTableModel model)
+        {
+            return rep.Tables(model);
+        }
+
+        public List<AtomDbColumnModel> Columns(AtomDbColumnModel model)
+        {
+            return rep.Columns(model);
+        }
+
     }
 }

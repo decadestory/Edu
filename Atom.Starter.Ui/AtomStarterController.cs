@@ -31,5 +31,19 @@ namespace Atom.Starter.Ui
             return new Br<List<AtomProjectDocModel>>(res);
         }
 
+        [HttpPost("Atom/Tables")]
+        public Br<List<AtomDbTableModel>> Tables([FromBody] AtomDbTableModel model)
+        {
+            var res = starter.Tables(model);
+            return new Br<List<AtomDbTableModel>>(res);
+        }
+
+        [HttpPost("Atom/Columns")]
+        public Br<List<AtomDbColumnModel>> Columns([FromBody] AtomDbColumnModel model)
+        {
+            var res = starter.Columns(model);
+            return new Br<List<AtomDbColumnModel>>(res);
+        }
+
     }
 }

@@ -19,8 +19,8 @@
                 </div>
                 <ul class="header-operations">
                     <li>ASearch</li>
-                    <li active>需求管理</li>
-                    <li>数据库管理</li>
+                    <li>需求管理</li>
+                    <li active>数据库管理</li>
                     <li>数据库查询</li>
                     <li>生成器</li>
                 </ul>
@@ -31,89 +31,45 @@
                 <el-form inline :model="query" label-position="right" label-width="100px" class="query-form">
                     <el-form-item label=" " label-width="0px">
                         <el-button icon="el-icon-info" @click="back()">操作记录</el-button>
-                        <el-button type="primary" icon="el-icon-plus" @click="add()">添加</el-button>
+                        <el-button type="primary" icon="el-icon-plus" @click="add()">添加表</el-button>
+                        <el-button type="primary" icon="el-icon-plus" @click="add()">添加字段</el-button>
                     </el-form-item>
                 </el-form>
 
-                <el-table :data="tableData" border style="width: 100%" :highlight-current-row="false" v-loading="query.loading">
-                    <el-table-column prop="Id" label="编号" width="80">
-                        <template slot-scope="scope">
-                            <div contenteditable="false">{{scope.row.Id}}</div>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="Name" label="需求模块" width="200">
-                        <template slot-scope="scope">
-                            <div contenteditable="true" @blur="e=>onBlur(scope.row,e,'Name')" v-html="scope.row.Name"></div>
-                            </div>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="Desc" label="需求描述">
-                        <template slot-scope="scope">
-                            <div contenteditable="true" @blur="e=>onBlur(scope.row,e,'Desc')" v-html="scope.row.Desc">
-                            </div>
-                        </template>
-                    </el-table-column>
+                <el-container style="position: fixed;left: 0;top: 166px;right: 0;bottom: 0;overflow-y: auto; ">
+                    <el-aside width="500px" style="height: 100%;background-color: #fdfdfd;">
+                        <el-table :data="tableData" border style="width: 100%" :highlight-current-row="true"
+                            v-loading="query.loading" @row-click="tbClick" >
+                            <el-table-column prop="Id" label="编号" width="50"></el-table-column>
+                            <el-table-column prop="Name" label="名称"></el-table-column>
+                            <el-table-column prop="DbTableName" label="表名">
+                                <template slot-scope="scope">
+                                    <b>{{scope.row.DbTableName}}</b>
+                                </template>
+                            </el-table-column>
+                        </el-table>
 
-                    <el-table-column prop="Questions" label="存在问题">
-                        <template slot-scope="scope">
-                            <div contenteditable="true" @blur="e=>onBlur(scope.row,e,'Questions')"
-                                v-html="scope.row.Questions"></div>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="Operator" label="分配人" width="100">
-                        <template slot-scope="scope">
-                            <div contenteditable="true" @blur="e=>onBlur(scope.row,e,'Operator')"
-                                v-html="scope.row.Operator"></div>
-                        </template>
-                    </el-table-column>
-
-
-                    <el-table-column prop="Status" label="状态" width="120">
-                        <template slot-scope="scope">
-                            <div contenteditable="false">
-                                <el-select v-model="scope.row.Status" style="width:100px" placeholder="请选择"
-                                    @change="e=>onBlur(scope.row,e,'Status')">
-                                    <el-option key="创建" label="创建" value="创建"></el-option>
-                                    <el-option key="开发中" label="开发中" value="开发中"></el-option>
-                                    <el-option key="测试" label="测试" value="测试"></el-option>
-                                    <el-option key="完成" label="完成" value="完成"></el-option>
-                                    <el-option key="归档" label="归档" value="归档"></el-option>
-                                    <el-option key="删除" label="删除" value="删除"></el-option>
-                                </el-select>
-                            </div>
-                        </template>
-                    </el-table-column>
-
-                    <el-table-column prop="TestDate" label="测试日期" width="150">
-                        <template slot-scope="scope">
-                            <div contenteditable="false">
-                                <el-date-picker v-model="scope.row.TestDate" style="width:140px" type="date"
-                                    placeholder="选择日期" value-format="yyyy-MM-dd" @change="e=>onBlur(scope.row,e,'TestDate')">
-                                </el-date-picker>
-                            </div>
-                        </template>
-                    </el-table-column>
+                    </el-aside>
+                    <el-main style="padding:0 0 0 10px;background-color: #fdfdfd;">
+                        <div style="color: #fff;padding:10px; font-size: 24px; font-weight: bold;background: linear-gradient(to right,rgba(64, 158, 255,.5),#fff);">{{curTableName}}</div>
+                        <el-table :data="columnData" border style="width: 100%" :highlight-current-row="false"
+                            v-loading="query.loading">
+                            <el-table-column prop="Id" label="编号" width="50"></el-table-column>
+                            <el-table-column prop="Name" label="名称"></el-table-column>
+                            <el-table-column prop="DbColumnName" label="列名">
+                                <template slot-scope="scope">
+                                    <b>{{scope.row.DbColumnName}}</b>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="DbType" label="类型"></el-table-column>
+                            <el-table-column prop="Desc" label="说明"></el-table-column>
+                            <el-table-column prop="IsNull" label="允许Null"></el-table-column>
+                            <el-table-column prop="IsPrimary" label="主键"></el-table-column>
+                        </el-table>
+                    </el-main>
+                </el-container>
 
 
-                    <el-table-column prop="CompleteDate" label="完成日期" width="150">
-                        <template slot-scope="scope">
-                            <div contenteditable="false">
-                                <el-date-picker v-model="scope.row.CompleteDate" style="width:140px" type="date"
-                                    placeholder="选择日期" value-format="yyyy-MM-dd" @change="e=>onBlur(scope.row,e,'CompleteDate')">
-                                </el-date-picker>
-                            </div>
-                        </template>
-                    </el-table-column>
-
-                    <el-table-column prop="Remark" label="备注" width="200">
-                        <template slot-scope="scope">
-                            <div contenteditable="true" @blur="e=>onBlur(scope.row,e,'Remark')"
-                                v-html="scope.row.Remark"></div>
-                        </template>
-                    </el-table-column>
-
-
-                </el-table>
             </el-main>
 
         </el-container>
@@ -134,6 +90,8 @@
                     loading: false,
                 },
                 tableData: [],
+                columnData: [],
+                curTableName:'选择表',
             }
         },
         mounted() {
@@ -143,7 +101,7 @@
             search(hold) {
                 if (hold !== true) this.query.PageIndex = 1;
                 this.query.loading = true;
-                axios.post(`${this.apiUrl}/Atom/Docs`, this.query).then(res => {
+                axios.post(`${this.apiUrl}/Atom/Tables`, this.query).then(res => {
                     this.query.loading = false;
                     this.tableData = res.data.Data;
                 })
@@ -163,31 +121,40 @@
             },
             onBlur(row, e, cname) {
                 if (cname == 'Status' || cname == 'TestDate' || cname == 'CompleteDate') {
-                    console.info('row',row);
-                    console.info('e',e);
+                    console.info('row', row);
+                    console.info('e', e);
                 } else {
                     row[cname] = e.target.innerHTML;
                     console.info('修改了' + cname, row);
                 }
-                row.EditColName=cname;
+                row.EditColName = cname;
                 this.edit(row);
             },
             edit(row) {
                 this.query.loading = true;
                 axios.post(`${this.apiUrl}/Atom/AddOrEditDoc`, row).then(res => {
                     this.query.loading = false;
-                    if(res.data.ExtData==true) {
-                        if(res.data.Data>0){
-                            this.$notify.success({title: '成功',message: '添加成功'});
-                            row.Id=res.data.Data;
-                        }else if(res.data.Data==-1){
-                            this.$notify.success({title: '成功',message: '删除成功'});
-                            if(row.Status=="删除") this.tableData = this.tableData.filter(t=>t.Id!=row.Id);
-                        }else if(res.data.Data==-2){
-                            this.$notify.success({title: '成功',message: '修改成功'});
+                    if (res.data.ExtData == true) {
+                        if (res.data.Data > 0) {
+                            this.$notify.success({ title: '成功', message: '添加成功' });
+                            row.Id = res.data.Data;
+                        } else if (res.data.Data == -1) {
+                            this.$notify.success({ title: '成功', message: '删除成功' });
+                            if (row.Status == "删除") this.tableData = this.tableData.filter(t => t.Id != row.Id);
+                        } else if (res.data.Data == -2) {
+                            this.$notify.success({ title: '成功', message: '修改成功' });
                         }
-                        
+
                     }
+                })
+            },
+
+            tbClick(row, column, event) {
+                this.query.loading = true;
+                axios.post(`${this.apiUrl}/Atom/Columns`, { DbTableId: row.Id }).then(res => {
+                    this.query.loading = false;
+                    this.columnData = res.data.Data;
+                    this.curTableName = row.DbTableName;
                 })
             },
 
@@ -293,36 +260,6 @@
         font-weight: bold;
         font-size: 24px;
     }
-
-    .el-table th>.cell {
-        padding-left: 10px !important;
-    }
-
-    .el-input__inner {
-        border: 1px solid transparent !important;
-        background: transparent;
-    }
-
-    .el-table td {
-        padding: 0 !important;
-    }
-
-    .el-table .cell {
-        padding: 0 !important;
-    }
-
-    [contenteditable] {
-        padding: 10px;
-        border: 1px solid transparent !important;
-        border: 0;
-        outline: none;
-        background-color: rgba(0, 0, 0, 0);
-    }
-
-    .el-table__row td{
-        vertical-align: text-top !important;
-    }
-
 </style>
 
 </html>

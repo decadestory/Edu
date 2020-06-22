@@ -10,6 +10,9 @@ namespace Atom.Starter
         long AddOrEditTable(AtomDbTableModel model);
         Tuple<long, bool> AddOrEditDoc(AtomProjectDocModel model);
         List<AtomProjectDocModel> Docs(AtomProjectDocModel model);
+        List<AtomDbTableModel> Tables(AtomDbTableModel model);
+        List<AtomDbColumnModel> Columns(AtomDbColumnModel model);
+
     }
 
 }

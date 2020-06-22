@@ -55,29 +55,45 @@ namespace Atom.Starter.DataCore
                 SonFact.Cur.Insert(pc);
             }
 
+            GenTableColumns();
+
             return true;
         }
 
-        internal long AddOrEditTable(AtomDbTableModel model)
+        private void GenTableColumns()
         {
-            if (model.Id > 0) goto edit;
-            var en = EntityMapper.Mapper<AtomDbTableModel, AtomDbTable>(model);
-            en.AddTime = DateTime.Now;
-            en.EditTime = DateTime.Now;
-            en.AddUserId = 0;
-            en.EditUserId = 0;
-            en.IsValid = true;
-            var res = SonFact.Cur.Insert(en);
-            return res;
-            edit:
-            if (!model.IsValid.HasValue) return SonFact.Cur.Delete<AtomDbTable>(model.Id);
-            var edn = EntityMapper.Mapper<AtomDbTableModel, AtomDbTable>(model);
-            edn.EditTime = DateTime.Now;
-            edn.EditUserId = 0;
-            var rows = SonFact.Cur.Update(edn);
-            return rows;
+            var sql = @"if not exists(select 1 from AtomDbTable)
+                                begin
+	                                insert into AtomDbTable(Name,DbTableName,ProjectId,AddTime,AddUserId,EditTime,EditUserId,IsValid)
+	                                select name,name,object_id,GETDATE(),1,GETDATE(),1,1 from sys.objects where type='U' and name not like '%Atom%'
+
+	                                select * into #temp_adt from AtomDbTable
+	                                declare @tid int;
+	                                declare @oid int;
+	                                while exists (select 1 from #temp_adt)
+	                                begin
+		                                set @tid=0;
+		                                set @oid=0;
+		                                select top 1 @tid =id,@oid=ProjectId from #temp_adt;
+
+		                                insert AtomDbColumn(DbTableId,[Name],DbColumnName,DbType,IsNull,IsPrimary,[Desc],AddTime,AddUserId,EditTime,EditUserId,IsValid)
+		                                select @tid,Convert(varchar,ep.value),Convert(varchar,c.name),
+		                                (case when t.name='varchar' or t.name='char' or t.name='nvarchar' or t.name='nchar' then convert(varchar,t.name)+'('+ case when c.max_length=-1 then 'max' else convert(varchar,c.max_length) end+')' else convert(varchar,t.name) end) DbType,
+		                                c.is_nullable,c.is_identity,Convert(varchar,ep.value),getdate(),1,getdate(),1,1
+		                                from sys.columns c
+		                                LEFT JOIN sys.extended_properties ep ON ep.major_id = c.object_id AND ep.minor_id = c.column_id 
+		                                left join sys.types t on c.user_type_id=t.user_type_id
+		                                where object_id=@oid;
+
+		                                delete #temp_adt where Id=@tid
+	                                end
+	                                drop table #temp_adt;
+                                end";
+
+            SonFact.Cur.ExecuteQuery(sql);
         }
 
+        //需求管理
         public Tuple<long,bool> AddOrEditDoc(AtomProjectDocModel model)
         {
             if (model.Id > 0) goto edit;
@@ -185,7 +201,7 @@ namespace Atom.Starter.DataCore
 
         public List<AtomProjectDocModel> Docs(AtomProjectDocModel model)
         {
-            var sql = string.Format(@" select * from AtomProjectDoc order by Id OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
+            var sql = string.Format(@" select * from AtomProjectDoc order by Id OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY");
             var res = SonFact.Cur.ExecuteQuery<AtomProjectDocModel>(sql);
             return res;
         }
@@ -205,6 +221,42 @@ namespace Atom.Starter.DataCore
             SonFact.Cur.Insert(log);
             return true;
         }
+
+        //数据库管理
+        public long AddOrEditTable(AtomDbTableModel model)
+        {
+            if (model.Id > 0) goto edit;
+            var en = EntityMapper.Mapper<AtomDbTableModel, AtomDbTable>(model);
+            en.AddTime = DateTime.Now;
+            en.EditTime = DateTime.Now;
+            en.AddUserId = 0;
+            en.EditUserId = 0;
+            en.IsValid = true;
+            var res = SonFact.Cur.Insert(en);
+            return res;
+            edit:
+            if (!model.IsValid.HasValue) return SonFact.Cur.Delete<AtomDbTable>(model.Id);
+            var edn = EntityMapper.Mapper<AtomDbTableModel, AtomDbTable>(model);
+            edn.EditTime = DateTime.Now;
+            edn.EditUserId = 0;
+            var rows = SonFact.Cur.Update(edn);
+            return rows;
+        }
+
+        public List<AtomDbTableModel> Tables(AtomDbTableModel model)
+        {
+            var sql = string.Format(@" select * from AtomDbTable order by Id OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY");
+            var res = SonFact.Cur.ExecuteQuery<AtomDbTableModel>(sql);
+            return res;
+        }
+
+        public List<AtomDbColumnModel> Columns(AtomDbColumnModel model)
+        {
+            var sql = string.Format($@" select * from AtomDbColumn where DbTableId={model.DbTableId} order by Id OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY");
+            var res = SonFact.Cur.ExecuteQuery<AtomDbColumnModel>(sql);
+            return res;
+        }
+
 
     }
 }
