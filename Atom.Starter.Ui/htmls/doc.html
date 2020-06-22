@@ -41,7 +41,7 @@
                             <div contenteditable="false">{{scope.row.Id}}</div>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="Name" label="需求模块">
+                    <el-table-column prop="Name" label="需求模块" width="200">
                         <template slot-scope="scope">
                             <div contenteditable="true" @blur="e=>onBlur(scope.row,e,'Name')" v-html="scope.row.Name"></div>
                             </div>
@@ -68,10 +68,10 @@
                     </el-table-column>
 
 
-                    <el-table-column prop="Status" label="状态" width="150">
+                    <el-table-column prop="Status" label="状态" width="120">
                         <template slot-scope="scope">
                             <div contenteditable="false">
-                                <el-select v-model="scope.row.Status" style="width:140px" placeholder="请选择"
+                                <el-select v-model="scope.row.Status" style="width:100px" placeholder="请选择"
                                     @change="e=>onBlur(scope.row,e,'Status')">
                                     <el-option key="创建" label="创建" value="创建"></el-option>
                                     <el-option key="开发中" label="开发中" value="开发中"></el-option>
@@ -105,7 +105,7 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column prop="Remark" label="备注">
+                    <el-table-column prop="Remark" label="备注" width="200">
                         <template slot-scope="scope">
                             <div contenteditable="true" @blur="e=>onBlur(scope.row,e,'Remark')"
                                 v-html="scope.row.Remark"></div>
@@ -272,6 +272,7 @@
         height: 100%;
     }
 
+
     .el-input-group>.el-input__inner {
         height: 50px;
         border: 2px solid #DCDFE6;
@@ -317,6 +318,11 @@
         outline: none;
         background-color: rgba(0, 0, 0, 0);
     }
+
+    .el-table__row td{
+        vertical-align: text-top !important;
+    }
+
 </style>
 
 </html>
