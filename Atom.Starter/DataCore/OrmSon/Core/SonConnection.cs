@@ -26,12 +26,14 @@ namespace Orm.Son.Core
 
         public IDbTransaction BeginTransaction()
         {
+            if(DbConnection.State!=ConnectionState.Open) DbConnection.Open();
             DbTransaction = DbConnection.BeginTransaction();
             return DbTransaction;
         }
 
         public IDbTransaction BeginTransaction(IsolationLevel il)
         {
+            if (DbConnection.State != ConnectionState.Open)  DbConnection.Open();
             return DbConnection.BeginTransaction(il);
         }
 
@@ -60,7 +62,7 @@ namespace Orm.Son.Core
 
         public void Open()
         {
-            DbConnection.Open();
+            if(DbConnection.State!=ConnectionState.Open) DbConnection.Open();
         }
     }
 }

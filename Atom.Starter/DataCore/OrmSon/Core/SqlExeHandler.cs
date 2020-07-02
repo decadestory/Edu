@@ -14,19 +14,11 @@ namespace Orm.Son.Core
 
         public static object ExeSql(this string sql, IDbConnection dbConn)
         {
-            try
-            {
-                dbConn.Open();
-                var dbCommand = dbConn.CreateCommand();
-                dbCommand.CommandText = sql;
-                var result = dbCommand.ExecuteScalar();
-                return result;
-            }
-            finally
-            {
-                dbConn.Close();
-            }
-
+            if (dbConn.State != ConnectionState.Open) dbConn.Open();
+            var dbCommand = dbConn.CreateCommand();
+            dbCommand.CommandText = sql;
+            var result = dbCommand.ExecuteScalar();
+            return result;
         }
 
         public static DataSet ExeQuery(this string sql, IDbConnection dbConn)
@@ -47,20 +39,12 @@ namespace Orm.Son.Core
 
         public static object ExeSqlWithParams(this Tuple<string, List<SqlParameter>> sql, IDbConnection dbConn)
         {
-            try
-            {
-                dbConn.Open();
-                var dbCommand = dbConn.CreateCommand();
-                dbCommand.CommandText = sql.Item1;
-                sql.Item2.ForEach(t => dbCommand.Parameters.Add(t));
-                var result = dbCommand.ExecuteScalar();
-                return result;
-            }
-            finally
-            {
-                dbConn.Close();
-            }
-
+            if (dbConn.State != ConnectionState.Open) dbConn.Open();
+            var dbCommand = dbConn.CreateCommand();
+            dbCommand.CommandText = sql.Item1;
+            sql.Item2.ForEach(t => dbCommand.Parameters.Add(t));
+            var result = dbCommand.ExecuteScalar();
+            return result;
         }
 
         public static DataSet ExeQueryWithParams(this Tuple<string, List<SqlParameter>> sql, IDbConnection dbConn)
@@ -77,9 +61,7 @@ namespace Orm.Son.Core
 
         public static Tuple<DataSet, object> ExeSqlWithParamsPage(this Tuple<string, List<SqlParameter>, string> sql, IDbConnection dbConn)
         {
-            try
-            {
-                dbConn.Open();
+                if (dbConn.State != ConnectionState.Open)  dbConn.Open();
                 var dbCommand = dbConn.CreateCommand();
                 sql.Item2.ForEach(t => dbCommand.Parameters.Add(t));
 
@@ -92,13 +74,6 @@ namespace Orm.Son.Core
                 dbCommand.CommandText = sql.Item3;
                 var resultTotal = dbCommand.ExecuteScalar();
                 return new Tuple<DataSet, object>(ds, resultTotal);
-            }
-            finally
-            {
-
-                dbConn.Close();
-            }
-
         }
 
         #endregion

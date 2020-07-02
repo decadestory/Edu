@@ -15,9 +15,9 @@ namespace Atom.Starter
             rep.CheckOrCreateDb(projectName,projectDesc);
         }
 
-        public long AddOrEditTable(AtomDbTableModel model)
+        public long AddTable(AtomDbTableModel model)
         {
-            return rep.AddOrEditTable(model);
+            return rep.AddTable(model);
         }
 
         public Tuple<long, bool> AddOrEditDoc(AtomProjectDocModel model)

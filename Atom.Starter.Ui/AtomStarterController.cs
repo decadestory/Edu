@@ -10,10 +10,10 @@ namespace Atom.Starter.Ui
         public IAStarter starter { get; set; }
 
         [HttpPost]
-        [Route("Atom/AddOrEditTable")]
-        public Br<long> AddOrEditTable([FromBody] AtomDbTableModel model)
+        [Route("Atom/AddTable")]
+        public Br<long> AddTable([FromBody] AtomDbTableModel model)
         {
-            var res = starter.AddOrEditTable(model);
+            var res = starter.AddTable(model);
             return new Br<long>(res);
         }
 

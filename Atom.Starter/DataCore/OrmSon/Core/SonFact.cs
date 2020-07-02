@@ -30,7 +30,6 @@ namespace Orm.Son.Core
 
     }
 
-
     public static class CallContext
     {
         static ConcurrentDictionary<string, AsyncLocal<object>> state = new ConcurrentDictionary<string, AsyncLocal<object>>();
@@ -41,6 +40,5 @@ namespace Orm.Son.Core
         public static object GetData(string name) =>
             state.TryGetValue(name, out AsyncLocal<object> data) ? data.Value : null;
     }
-
 
 }

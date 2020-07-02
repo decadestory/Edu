@@ -94,7 +94,7 @@ namespace Atom.Starter.DataCore
         }
 
         //需求管理
-        public Tuple<long,bool> AddOrEditDoc(AtomProjectDocModel model)
+        public Tuple<long, bool> AddOrEditDoc(AtomProjectDocModel model)
         {
             if (model.Id > 0) goto edit;
             var en = EntityMapper.Mapper<AtomProjectDocModel, AtomProjectDoc>(model);
@@ -105,17 +105,17 @@ namespace Atom.Starter.DataCore
             en.IsValid = true;
             var res = SonFact.Cur.Insert(en);
             AddLog(1, $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} 添加了需求[{res}]");
-            return new Tuple<long, bool>(res, true) ;
+            return new Tuple<long, bool>(res, true);
             edit:
-            if (model.Status=="删除")
+            if (model.Status == "删除")
             {
                 AddLog(1, $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} 删除了需求[{model.Id}]");
                 SonFact.Cur.Delete<AtomProjectDoc>(model.Id);
-                return new Tuple<long, bool>(-1,true);
+                return new Tuple<long, bool>(-1, true);
             }
             var old = SonFact.Cur.Find<AtomProjectDoc>(model.Id);
-            var isSaved =GetIsSaveOk(old, model);
-            if (isSaved == -10) return new Tuple<long, bool>(-2,false);
+            var isSaved = GetIsSaveOk(old, model);
+            if (isSaved == -10) return new Tuple<long, bool>(-2, false);
 
             var edn = EntityMapper.Mapper<AtomProjectDocModel, AtomProjectDoc>(model);
             edn.EditTime = DateTime.Now;
@@ -223,24 +223,35 @@ namespace Atom.Starter.DataCore
         }
 
         //数据库管理
-        public long AddOrEditTable(AtomDbTableModel model)
+        public long AddTable(AtomDbTableModel model)
         {
-            if (model.Id > 0) goto edit;
+            if (string.IsNullOrWhiteSpace(model.Name)) throw new Exception("表名不能为空");
+            if (string.IsNullOrWhiteSpace(model.DbTableName)) throw new Exception("数据库表名不能为空");
+            if (string.IsNullOrWhiteSpace(model.KeyName)) throw new Exception("数据库主键名");
+
+
             var en = EntityMapper.Mapper<AtomDbTableModel, AtomDbTable>(model);
             en.AddTime = DateTime.Now;
             en.EditTime = DateTime.Now;
             en.AddUserId = 0;
             en.EditUserId = 0;
             en.IsValid = true;
-            var res = SonFact.Cur.Insert(en);
-            return res;
-            edit:
-            if (!model.IsValid.HasValue) return SonFact.Cur.Delete<AtomDbTable>(model.Id);
-            var edn = EntityMapper.Mapper<AtomDbTableModel, AtomDbTable>(model);
-            edn.EditTime = DateTime.Now;
-            edn.EditUserId = 0;
-            var rows = SonFact.Cur.Update(edn);
-            return rows;
+
+            var tran = SonFact.Cur.BeginTransaction();
+            try
+            {
+                var res = SonFact.Cur.Insert(en);
+                var doSql = AStarterSqlGen.CreateTableSql(model.DbTableName, model.KeyName,res);
+                SonFact.Cur.ExecuteSql(doSql);
+                AddLog(2, doSql);
+                tran.Commit();
+                return res;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw new Exception(ex.Message);
+            }
         }
 
         public List<AtomDbTableModel> Tables(AtomDbTableModel model)
@@ -256,7 +267,6 @@ namespace Atom.Starter.DataCore
             var res = SonFact.Cur.ExecuteQuery<AtomDbColumnModel>(sql);
             return res;
         }
-
 
     }
 }

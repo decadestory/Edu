@@ -31,16 +31,17 @@
                 <el-form inline :model="query" label-position="right" label-width="100px" class="query-form">
                     <el-form-item label=" " label-width="0px">
                         <el-button icon="el-icon-info" @click="back()">操作记录</el-button>
-                        <el-button type="primary" icon="el-icon-plus" @click="add()">添加表</el-button>
+                        <el-button type="primary" icon="el-icon-plus" @click="showAddTable()">添加表</el-button>
                         <el-button type="primary" icon="el-icon-plus" @click="add()">添加字段</el-button>
+                        <!-- <el-button type="primary" icon="el-icon-refresh" @click="add()">重新同步</el-button> -->
                     </el-form-item>
                 </el-form>
 
                 <el-container style="position: fixed;left: 0;top: 166px;right: 0;bottom: 0;overflow-y: auto; ">
                     <el-aside width="500px" style="height: 100%;background-color: #fdfdfd;">
                         <el-table :data="tableData" border style="width: 100%" :highlight-current-row="true"
-                            v-loading="query.loading" @row-click="tbClick" >
-                            <el-table-column prop="Id" label="编号" width="100"></el-table-column>
+                            v-loading="query.loading" @row-click="tbClick">
+                            <el-table-column prop="Id" label="编号" width="80"></el-table-column>
                             <el-table-column prop="Name" label="名称"></el-table-column>
                             <el-table-column prop="DbTableName" label="表名">
                                 <template slot-scope="scope">
@@ -50,35 +51,37 @@
                         </el-table>
 
                     </el-aside>
-                    <el-main style="padding:0 0 0 10px;background-color: #fdfdfd;" >
-                        <div style="color: #fff;padding:10px; font-size: 24px; font-weight: bold;background: linear-gradient(to right,rgba(64, 158, 255,.5),#fff);">
-                            <el-button type="primary" size="mini" icon="el-icon-edit" style="float: right;" >修改</el-button>
-                            {{curTable.Name}}
+                    <el-main style="padding:0 0 0 10px;background-color: #fdfdfd;">
+                        <div
+                            style="color: #fff;padding:10px; font-size: 24px; font-weight: bold;background: linear-gradient(to right,rgba(64, 158, 255,.5),#fff);">
+                            <el-button type="primary" size="mini" icon="el-icon-edit" style="float: right;">修改
+                            </el-button>
+                            {{curTable.Name}}-{{curTable.DbTableName}}
                         </div>
                         <el-table :data="columnData" border style="width: 100%" :highlight-current-row="false"
                             v-loading="query.loading" id="col-edit">
-                            <el-table-column prop="Id" label="编号" width="50"></el-table-column>
+                            <el-table-column prop="Id" label="编号" width="80"></el-table-column>
                             <el-table-column prop="Name" label="名称">
                                 <template slot-scope="scope">
-                                    <el-button type="warning" size="mini" icon="el-icon-edit" ></el-button>
+                                    <el-button type="warning" size="mini" icon="el-icon-edit"></el-button>
                                     {{scope.row.Name}}
                                 </template>
                             </el-table-column>
                             <el-table-column prop="DbColumnName" label="列名">
                                 <template slot-scope="scope">
-                                    <el-button type="warning" size="mini" icon="el-icon-edit" ></el-button>
+                                    <el-button type="warning" size="mini" icon="el-icon-edit"></el-button>
                                     <b>{{scope.row.DbColumnName}}</b>
                                 </template>
                             </el-table-column>
                             <el-table-column prop="DbType" label="类型">
                                 <template slot-scope="scope">
-                                    <el-button type="warning" size="mini" icon="el-icon-edit" ></el-button>
+                                    <el-button type="warning" size="mini" icon="el-icon-edit"></el-button>
                                     {{scope.row.DbType}}
                                 </template>
                             </el-table-column>
                             <el-table-column prop="Desc" label="说明">
                                 <template slot-scope="scope">
-                                    <el-button type="warning" size="mini" icon="el-icon-edit" ></el-button>
+                                    <el-button type="warning" size="mini" icon="el-icon-edit"></el-button>
                                     {{scope.row.Desc}}
                                 </template>
                             </el-table-column>
@@ -92,11 +95,11 @@
                                     {{scope.row.IsPrimary==true?'是':''}}
                                 </template>
                             </el-table-column>
-                            <el-table-column  label="操作" width="200">
+                            <el-table-column label="操作" width="150">
                                 <template slot-scope="scope">
-                                    <el-button type="success"  size="mini" @click="add()">设为主键</el-button>
-                                    <el-button type="success"  size="mini" @click="add()">设置可空</el-button>
-                                    <el-button type="danger"  size="mini" @click="add()">删除</el-button>
+                                    <el-button type="success" size="mini" @click="add()">主键</el-button>
+                                    <el-button type="success" size="mini" @click="add()">可空</el-button>
+                                    <el-button type="danger" size="mini" @click="add()">删除</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -107,6 +110,30 @@
             </el-main>
 
         </el-container>
+
+
+        <el-dialog title="添加表" :visible.sync="showAddTableWin" :close-on-click-modal="false">
+            <el-form ref="newTable" :model="newTable" label-width="120px">
+
+                <el-form-item label="表名称" prop="Name">
+                    <el-input v-model="newTable.Name"></el-input>
+                </el-form-item>
+
+                <el-form-item label="数据库表名" prop="DbTableName">
+                    <el-input v-model="newTable.DbTableName"></el-input>
+                </el-form-item>
+
+                <el-form-item label="数据库主键名" prop="KeyName">
+                    <el-input v-model="newTable.KeyName"></el-input>
+                </el-form-item>
+
+                <el-form-item>
+                    <el-button type="primary" :loading="saveLoading" @click="addTable">确认添加表</el-button>
+                </el-form-item>
+
+            </el-form>
+        </el-dialog>
+
     </div>
 </body>
 <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
@@ -123,35 +150,37 @@
                 query: {
                     loading: false,
                 },
+                saveLoading: false,
+                showAddTableWin: false,
+                newTable: {},
                 tableData: [],
                 columnData: [],
-                curTable:{Name:'选择表'},
+                curTable: { Name: '选择表' },
             }
         },
         mounted() {
             this.search();
         },
         methods: {
-            search(hold) {
-                if (hold !== true) this.query.PageIndex = 1;
+            search() {
                 this.query.loading = true;
                 axios.post(`${this.apiUrl}/Atom/Tables`, this.query).then(res => {
                     this.query.loading = false;
                     this.tableData = res.data.Data;
                 })
             },
-            add() {
-                var row = {
-                    Id: 0,
-                    Name: '',
-                    Desc: '',
-                    Status: '创建',
-                    Operator: '',
-                    Questions: '',
-                    Remark: '',
-                };
-                this.tableData.push(row);
-                this.edit(row);
+            showAddTable() {
+                this.showAddTableWin = true;
+            },
+            addTable() {
+                this.saveLoading = true;
+                axios.post(`${this.apiUrl}/Atom/AddTable`, this.newTable).then(res => {
+                    this.saveLoading = false;
+                    if (res.data.Code != 1) return this.$message.error(res.data.Msg);
+                    this.$notify.success({ title: '成功', message: '添加成功' });
+                    this.search();
+                    this.showAddTableWin = false;
+                });
             },
             onBlur(row, e, cname) {
                 if (cname == 'Status' || cname == 'TestDate' || cname == 'CompleteDate') {
@@ -295,10 +324,10 @@
         font-size: 24px;
     }
 
-    #col-edit .el-button--mini, .el-button--mini.is-round {
+    #col-edit .el-button--mini,
+    .el-button--mini.is-round {
         padding: 3px 3px;
     }
-
 </style>
 
 </html>

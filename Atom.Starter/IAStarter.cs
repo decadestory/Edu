@@ -7,7 +7,7 @@ namespace Atom.Starter
 {
     public interface IAStarter
     {
-        long AddOrEditTable(AtomDbTableModel model);
+        long AddTable(AtomDbTableModel model);
         Tuple<long, bool> AddOrEditDoc(AtomProjectDocModel model);
         List<AtomProjectDocModel> Docs(AtomProjectDocModel model);
         List<AtomDbTableModel> Tables(AtomDbTableModel model);

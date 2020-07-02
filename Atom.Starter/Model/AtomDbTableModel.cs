@@ -15,6 +15,7 @@ namespace Atom.Starter.Model
 
         [Description("数据库表名")]
         public string DbTableName { get; set; }
+        public string KeyName { get; set; }
 
         [Description("项目Id")]
         public int ProjectId { get; set; }
