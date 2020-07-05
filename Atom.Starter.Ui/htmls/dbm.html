@@ -32,7 +32,7 @@
                     <el-form-item label=" " label-width="0px">
                         <el-button icon="el-icon-info" @click="back()">操作记录</el-button>
                         <el-button type="primary" icon="el-icon-plus" @click="showAddTable()">添加表</el-button>
-                        <el-button type="primary" icon="el-icon-plus" @click="add()">添加字段</el-button>
+                        <el-button type="primary" icon="el-icon-plus" @click="showAddCol()">添加字段</el-button>
                         <!-- <el-button type="primary" icon="el-icon-refresh" @click="add()">重新同步</el-button> -->
                     </el-form-item>
                 </el-form>
@@ -95,11 +95,17 @@
                                     {{scope.row.IsPrimary==true?'是':''}}
                                 </template>
                             </el-table-column>
+                            <el-table-column prop="IsIdentity" label="自增" width="50">
+                                <template slot-scope="scope">
+                                    {{scope.row.IsIdentity==true?'是':''}}
+                                </template>
+                            </el-table-column>
                             <el-table-column label="操作" width="150">
                                 <template slot-scope="scope">
-                                    <el-button type="success" size="mini" @click="add()">主键</el-button>
-                                    <el-button type="success" size="mini" @click="add()">可空</el-button>
-                                    <el-button type="danger" size="mini" @click="add()">删除</el-button>
+                                    <el-button type="success" size="mini" @click="add()">空</el-button>
+                                    <el-button type="success" size="mini" @click="add()">键</el-button>
+                                    <el-button type="danger" size="mini" @click="add()">增</el-button>
+                                    <el-button type="danger" size="mini" @click="add()">删</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -134,6 +140,44 @@
             </el-form>
         </el-dialog>
 
+        <el-dialog title="添加字段" :visible.sync="showAddColWin" :close-on-click-modal="false">
+            <el-form ref="newCol" :model="newCol" label-width="120px">
+
+                <el-form-item label="名称" prop="Name">
+                    <el-input v-model="newCol.Name"></el-input>
+                </el-form-item>
+
+                <el-form-item label="数据库列名" prop="DbColumnName">
+                    <el-input v-model="newCol.DbColumnName"></el-input>
+                </el-form-item>
+
+                <el-form-item label="类型" prop="DbType">
+                    <el-input v-model="newCol.DbType"></el-input>
+                </el-form-item>
+
+                <el-form-item label="说明" prop="Desc">
+                    <el-input v-model="newCol.Desc"></el-input>
+                </el-form-item>
+
+                <el-form-item label="是否可空" prop="IsNull">
+                    <el-switch v-model="newCol.IsNull" active-color="#13ce66" inactive-color="#ff4949"> </el-switch>
+                </el-form-item>
+
+                <el-form-item label="是否主键" prop="IsPrimary">
+                    <el-switch v-model="newCol.IsPrimary" active-color="#13ce66" inactive-color="#ff4949"> </el-switch>
+                </el-form-item>
+
+                <el-form-item label="是否自增" prop="IsIdentity">
+                    <el-switch v-model="newCol.IsIdentity" active-color="#13ce66" inactive-color="#ff4949"> </el-switch>
+                </el-form-item>
+
+                <el-form-item>
+                    <el-button type="primary" :loading="saveLoading" @click="addCol">确认添加列</el-button>
+                </el-form-item>
+
+            </el-form>
+        </el-dialog>
+
     </div>
 </body>
 <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
@@ -152,7 +196,9 @@
                 },
                 saveLoading: false,
                 showAddTableWin: false,
+                showAddColWin:false,
                 newTable: {},
+                newCol:{},
                 tableData: [],
                 columnData: [],
                 curTable: { Name: '选择表' },
@@ -166,11 +212,26 @@
                 this.query.loading = true;
                 axios.post(`${this.apiUrl}/Atom/Tables`, this.query).then(res => {
                     this.query.loading = false;
+                    if (res.data.Code != 1) return this.$message.error(res.data.Msg);
                     this.tableData = res.data.Data;
+                })
+            },
+            tbClick(row, column, event) {
+                this.query.loading = true;
+                axios.post(`${this.apiUrl}/Atom/Columns`, { DbTableId: row.Id }).then(res => {
+                    this.query.loading = false;
+                    if (res.data.Code != 1) return this.$message.error(res.data.Msg);
+                    this.columnData = res.data.Data;
+                    this.curTable = row;
                 })
             },
             showAddTable() {
                 this.showAddTableWin = true;
+            },
+            showAddCol() {
+                if(!this.curTable.Id) return this.$message.error('请先选择表');
+                this.newCol = {IsNull:true,IsPrimary:false,IsIdentity:false,DbTableId:this.curTable.Id};
+                this.showAddColWin = true;
             },
             addTable() {
                 this.saveLoading = true;
@@ -182,54 +243,19 @@
                     this.showAddTableWin = false;
                 });
             },
-            onBlur(row, e, cname) {
-                if (cname == 'Status' || cname == 'TestDate' || cname == 'CompleteDate') {
-                    console.info('row', row);
-                    console.info('e', e);
-                } else {
-                    row[cname] = e.target.innerHTML;
-                    console.info('修改了' + cname, row);
-                }
-                row.EditColName = cname;
-                this.edit(row);
-            },
-            edit(row) {
-                this.query.loading = true;
-                axios.post(`${this.apiUrl}/Atom/AddOrEditDoc`, row).then(res => {
-                    this.query.loading = false;
-                    if (res.data.ExtData == true) {
-                        if (res.data.Data > 0) {
-                            this.$notify.success({ title: '成功', message: '添加成功' });
-                            row.Id = res.data.Data;
-                        } else if (res.data.Data == -1) {
-                            this.$notify.success({ title: '成功', message: '删除成功' });
-                            if (row.Status == "删除") this.tableData = this.tableData.filter(t => t.Id != row.Id);
-                        } else if (res.data.Data == -2) {
-                            this.$notify.success({ title: '成功', message: '修改成功' });
-                        }
-
-                    }
-                })
+            addCol(){
+                this.saveLoading = true;
+                axios.post(`${this.apiUrl}/Atom/AddColumn`, this.newCol).then(res => {
+                    this.saveLoading = false;
+                    if (res.data.Code != 1) return this.$message.error(res.data.Msg);
+                    this.$notify.success({ title: '成功', message: '添加成功' });
+                    this.tbClick({Id:this.curTable.Id});
+                    this.showAddColWin = false;
+                });
             },
 
-            tbClick(row, column, event) {
-                this.query.loading = true;
-                axios.post(`${this.apiUrl}/Atom/Columns`, { DbTableId: row.Id }).then(res => {
-                    this.query.loading = false;
-                    this.columnData = res.data.Data;
-                    this.curTable = row;
-                })
-            },
+           
 
-        },
-        watch: {
-            // tableData: {
-            //     handler(newData, oldData) {
-            //         console.info(newData);
-            //     },
-            //     immediate: true,
-            //     deep: true
-            // }
         },
     })
 </script>

@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.1/theme-chalk/index.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/monaco-editor/0.20.0/min/vs/editor/editor.main.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+
+        <el-container class="wrapper">
+            <el-header height="80px">
+                <img src="https://dponlinedownload.parrowtech.com/atom.png" alt="element-logo" class="header-logo"
+                    width="50">
+                <div
+                    style="color:white;font-weight: bold; font-size: 24px; display: inline-block; vertical-align: middle;">
+                    ATOM STARTER
+                </div>
+                <ul class="header-operations">
+                    <li><a href="./search.html">ASearch</a></li>
+                    <li><a href="./doc.html">需求管理</a></li>
+                    <li><a href="./dbm.html">数据库管理</a></li>
+                    <li active><a href="./query.html">数据库查询</a></li>
+                    <li><a href="./gen.html">生成器</a></li>
+                </ul>
+            </el-header>
+
+            <el-main class="content" style="height: 400px; padding:0;margin:0;overflow: hidden; position: relative;">
+                <div style="width: 100%; height: 100%; " id="sqlCode"></div>
+                <div style="width: 300px;position:absolute;right:15px;bottom: 10px;">
+                    <el-button icon="el-icon-caret-right" size="medium" :loading="loading" @click="query()">查询
+                    </el-button>
+                    <el-button icon="el-icon-caret-right" size="medium" :loading="loading" @click="execute()">执行
+                    </el-button>
+                    <el-button icon="el-icon-download" size="medium" :loading="loading" @click="exportCsv()">导出
+                    </el-button>
+                </div>
+
+            </el-main>
+
+            <el-footer style="margin:0;padding:0; width:100%;overflow-x: auto; height: auto;">
+                <div tb-div v-if="resType=='data'">
+                    <table res-tb>
+                        <tr>
+                            <th>行号</th>
+                            <th v-for="col in exeRes.ColumnNames">{{col}}</th>
+                        </tr>
+                        <tr v-for="(item,index) in exeRes.ResultTable">
+                            <td>{{index+1}}</td>
+                            <td v-for="col in exeRes.ColumnNames">{{item[col]==null?'NULL':item[col]}}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div tb-div v-if="resType=='error'" style="color:red; text-indent: 10px; margin-top: 10px;">{{resMsg}}
+                </div>
+                <div tb-div v-if="resType=='msg'" style="color:green; text-indent: 10px; margin-top: 10px;">{{resMsg}}
+                </div>
+            </el-footer>
+
+        </el-container>
+    </div>
+</body>
+<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.1/index.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.2/axios.min.js"></script>
+<script src="https://cdn.staticfile.org/monaco-editor/0.20.0/min/vs/loader.min.js"></script>
+<script src="https://cdn.staticfile.org/monaco-editor/0.20.0/min/vs/basic-languages/sql/sql.js"></script>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                // apiUrl: window.location.origin,
+                apiUrl: 'http://localhost:55166',
+                monacoEditor: {},
+                exeRes: {},
+                loading: false,
+                resType: '',
+                resMsg: '',
+            }
+        },
+        mounted() {
+            require.config({ paths: { 'vs': 'https://cdn.staticfile.org/monaco-editor/0.20.0/min/vs' } });
+            require(['vs/editor/editor.main'], () => {
+                this.monacoEditor = monaco.editor.create(document.getElementById('sqlCode'), {
+                    value: "select top 10 * from [User]",
+                    language: 'sql',
+                    wrappingColumn: 0,
+                    wrappingIndent: "indent",
+                    theme: 'vs-dark'
+                });
+                var sqlStore = localStorage.getItem('atom_sql_local');
+                if(sqlStore&&sqlStore!=null&& sqlStore!='')this.monacoEditor.setValue(sqlStore);
+
+                window.onresize = () => {
+                    if (this.monacoEditor) {
+                        this.monacoEditor.layout();
+                    }
+                };
+            });
+
+
+        },
+        methods: {
+            query() {
+                var txt = this.monacoEditor.getValue();
+                window.localStorage.setItem('atom_sql_local', txt);
+
+                var selecter = window.getSelection().toString();
+                if (selecter != null && selecter.trim() != "") txt = selecter;
+                this.resType = 'data';
+
+
+                this.loading = true;
+                axios.post(`${this.apiUrl}/Atom/SqlQuery`, { Sql: txt }).then(res => {
+                    this.loading = false;
+                    if (res.data.Code != 1) {
+                        this.resType = 'error'
+                        this.resMsg = res.data.Msg;
+                    }
+                    this.exeRes = res.data.Data;
+                })
+            },
+            execute() {
+                var txt = this.monacoEditor.getValue();
+                window.localStorage.setItem('atom_sql_local', txt);
+                var selecter = window.getSelection().toString();
+                if (selecter != null && selecter.trim() != "") txt = selecter;
+                this.resType = 'msg';
+
+                this.loading = true;
+                axios.post(`${this.apiUrl}/Atom/SqlExecute`, { Sql: txt }).then(res => {
+                    this.loading = false;
+                    if (res.data.Code != 1) {
+                        this.resType = 'error'
+                        this.resMsg = res.data.Msg;
+                    }
+                    this.resMsg = "执行成功，影响行数：" + res.data.Data.RowCnt;
+                })
+            },
+            exportCsv() { 
+
+                var txt = this.monacoEditor.getValue();
+                window.localStorage.setItem('atom_sql_local', txt);
+                var selecter = window.getSelection().toString();
+                if (selecter != null && selecter.trim() != "") txt = selecter;
+                this.resType = '';
+
+                window.open(`${this.apiUrl}/Atom/ExportCsv?sql=${txt}`);
+            },
+
+
+        },
+    })
+</script>
+
+<style>
+    html,
+    body {
+        height: 100%;
+    }
+
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+    .wrapper {
+        height: 100%;
+    }
+
+    a {
+        text-decoration: none;
+        color: #fff;
+    }
+
+    header {
+        width: 100%;
+        padding: 0 20px;
+        z-index: 1;
+        box-sizing: border-box;
+        background-color: rgb(64, 158, 255);
+    }
+
+    header::after {
+        display: inline-block;
+        content: "";
+        height: 100%;
+        vertical-align: middle
+    }
+
+    .container {
+        padding-top: 80px;
+    }
+
+    .menu {
+        height: 100%;
+    }
+
+    .content {
+        padding: 0;
+    }
+
+    .header-logo {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .header-operations li {
+        color: #fff;
+        display: inline-block;
+        vertical-align: middle;
+        padding: 0 10px;
+        margin: 0 10px;
+        line-height: 80px;
+        cursor: pointer;
+    }
+
+    .header-operations {
+        display: inline-block;
+        float: right;
+        padding-right: 30px;
+        height: 100%;
+    }
+
+    [active] {
+        font-weight: bold;
+        font-size: 24px;
+    }
+
+    [tb-div] {
+        width: 100%;
+    }
+
+    [res-tb] {
+        width: 100%;
+        font-size: 12px;
+        text-align: left;
+        border-collapse: collapse;
+        border: 1px solid #ddd;
+    }
+
+    [res-tb] th {
+        background-color: #eee;
+        border: 1px solid #ddd;
+        padding: 3px 3px;
+        white-space: nowrap;
+    }
+
+    [res-tb] td {
+        border: 1px solid #ddd;
+        padding: 3px 3px;
+        white-space: nowrap;
+    }
+</style>
+
+</html>

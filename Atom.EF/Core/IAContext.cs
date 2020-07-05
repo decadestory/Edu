@@ -19,7 +19,7 @@ namespace Atom.EF.Core
         DbContextOption Option { get; }
         //DatabaseFacade GetDatabase();
 
-        public new DatabaseFacade Database { get; }
+        public DatabaseFacade Database { get; }
 
         DbSet<T> Set<T>() where T : class;
         int SaveChanges();

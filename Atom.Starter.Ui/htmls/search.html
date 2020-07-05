@@ -20,7 +20,7 @@
                 <ul class="header-operations">
                     <li active><a href="./search.html">ASearch</a></li>
                     <li><a href="./doc.html">需求管理</a></li>
-                    <li ><a href="./dbm.html">数据库管理</a></li>
+                    <li><a href="./dbm.html">数据库管理</a></li>
                     <li><a href="./query.html">数据库查询</a></li>
                     <li><a href="./gen.html">生成器</a></li>
                 </ul>
@@ -32,103 +32,24 @@
                         class="header-logo" />
                 </div>
                 <div style="display: block; width: 50%;  margin:0 auto; margin-top: 30px;">
-                    <el-input placeholder="请输入需求关键字，数据库表名，字段名，如：user" v-model="input3">
-                        <el-button slot="append" icon="el-icon-search"></el-button>
+                    <el-input placeholder="请输入需求关键字，数据库表名，字段名，如：user" v-model="key" @keyup.enter.native="search">
+                        <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
                     </el-input>
                 </div>
 
                 <div style="display: block; width: 50%;  margin:0 auto; margin-top: 100px;">
-                    <el-table :data="tableData" class="table" stripe border v-loading="query.loading"
-                        @row-click="rowClick">
-                        <el-table-column prop="CateName" label="配置名称"></el-table-column>
-                        <el-table-column prop="CateCode" label="配置编码"></el-table-column>
-                        <el-table-column prop="Level" label="层级" width="50px"></el-table-column>
-                        <el-table-column prop="Sort" label="排序" width="50px"></el-table-column>
+                    <el-table :data="tableData" class="table" stripe border v-loading="loading">
+                        <el-table-column prop="TbName" label="区块"></el-table-column>
+                        <el-table-column prop="ColName" label="类型"></el-table-column>
+                        <el-table-column prop="Id" label="编号" width="80px"></el-table-column>
+                        <el-table-column label="内容">
+                            <template slot-scope="scope">
+                                <div v-html="scope.row.Name"></div>
+                            </template>
+                        </el-table-column>
 
-                        <el-table-column label="状态" width="80px">
-                            <template slot-scope="scope">
-                                <el-tag size="mini" :type="scope.row.IsValid==true ? 'success' : 'danger'"
-                                    disable-transitions>{{scope.row.IsValid==true ? '启用' : '禁用'}}</el-tag>
-                            </template>
-                        </el-table-column>
-                        </el-table-column>
-                        <el-table-column prop="AddTime" label="添加时间" width="160px"></el-table-column>
-                        <el-table-column label="操作" width="80px">
-                            <template slot-scope="scope">
-                                <el-button type="text" icon="el-icon-edit" @click.stop="showEdit(scope.row)">修改
-                                </el-button>
-                            </template>
-                        </el-table-column>
                     </el-table>
                 </div>
-
-
-                <el-dialog :title="dialogTitle" :visible.sync="showNewDialog" :close-on-click-modal="false">
-                    <el-form ref="newModel" :model="newModel" :rules="rules" label-width="120px">
-                        <el-form-item label="上级代码" prop="ParentCode">
-                            <el-input v-model="newModel.ParentCateCode" disabled></el-input>
-                        </el-form-item>
-
-                        <el-form-item label="配置名称" prop="CateName">
-                            <el-input v-model="newModel.CateName"></el-input>
-                        </el-form-item>
-
-                        <el-form-item label="配置代码" prop="CateCode">
-                            <el-input v-model="newModel.CateCode"></el-input>
-                        </el-form-item>
-
-                        <el-form-item label="层级" prop="Level">
-                            <el-input v-model="newModel.Level" disabled></el-input>
-                        </el-form-item>
-
-
-
-                        <el-form-item label="分类代码" prop="ExtCateCode">
-                            <el-input v-model="newModel.ExtCateCode"></el-input>
-                        </el-form-item>
-
-                        <el-form-item label="值一" prop="Value">
-                            <el-input v-model="newModel.Value"></el-input>
-                        </el-form-item>
-                        <el-form-item label="值二" prop="ScdValue">
-                            <el-input v-model="newModel.ScdValue"></el-input>
-                        </el-form-item>
-                        <el-form-item label="值三" prop="ThdValue">
-                            <el-input v-model="newModel.ThdValue"></el-input>
-                        </el-form-item>
-
-                        <el-form-item label="平台" prop="DomainId">
-                            <el-select v-model="newModel.DomainId">
-                                <el-option size="mini" :key="0" label="全平台" :value="0"></el-option>
-                                <el-option size="mini" v-for="r in domains" :key="r.Key" :label="r.Name" :value="r.Key">
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-
-                        <el-form-item label="排序" prop="Level">
-                            <el-input-number type="number" v-model="newModel.Sort"></el-input-number>
-                        </el-form-item>
-
-                        <el-form-item label="是否启用" prop="IsValid">
-                            <el-select v-model="newModel.IsValid">
-                                <el-option :key="1" label="启用" :value="true"></el-option>
-                                <el-option :key="0" label="禁用" :value="false"></el-option>
-                                <el-option :key="-1" label="删除" value=""></el-option>
-                            </el-select>
-                        </el-form-item>
-
-                        <el-form-item v-if="dialogTitle!='修改配置'">
-                            <el-button type="primary" :loading="editLoading" @click="add">添加配置</el-button>
-                        </el-form-item>
-
-                        <el-form-item v-if="dialogTitle=='修改配置'">
-                            <el-button type="primary" :loading="editLoading" @click="edit">修改配置</el-button>
-                        </el-form-item>
-                    </el-form>
-                </el-dialog>
-
-
-
             </el-main>
 
         </el-container>
@@ -144,130 +65,33 @@
             return {
                 // apiUrl: window.location.origin,
                 apiUrl: 'http://localhost:55166',
-                query: {
-                    loading: false,
-                },
-                curDirs: "",
-                clickHistory: [{ CateCode: "", CateName: "/" }],
-                curParent: { CateCode: "" },
-
+                loading: false,
+                key: '',
                 tableData: [],
-                showNewDialog: false,
-                dialogTitle: '添加配置',
-                newModel: {},
-                domains: [{ Key: 1, Name: '平台1' }, { Key: 2, Name: '平台2' }, { Key: 3, Name: '平台3' }],
-                editLoading: false,
-                rules: {
-                    CateName: [
-                        { required: true, message: "请输入配置名称", trigger: "blur" }
-                    ],
-                    CateCode: [{ required: true, message: "请输入配置代码", trigger: "blur" }]
-                }
             }
         },
-        mounted() {
-            this.search();
-        },
         methods: {
-            search(hold) {
-                if (hold !== true) this.query.PageIndex = 1;
-                this.query.loading = true;
-                axios.post(`${this.apiUrl}/Atom/GetDictsByParentCode?dictCode=${this.curParent.CateCode}&hasDisable=true`, this.query).then(res => {
-                    this.query.loading = false;
-                    this.tableData = res.data.Data;
-                    this.query.total = res.data.ExtData;
+            search() {
+                this.loading = true;
+                axios.post(`${this.apiUrl}/Atom/ASearch?key=${this.key}`, null).then(res => {
+                    this.loading = false;
+                    if (res.data.Code != 1) return this.$message.error(res.data.Msg);
+                    this.tableData = [];
+
+                    var replaceReg = new RegExp(this.key, 'gi');
+
+                    for (var i in res.data.Data) {
+                        var d = res.data.Data[i];
+                        if (d.ColName !== '数据库表名' && d.ColName !== '数据库字段名') {
+                            var replaceString = '<span class="hl-red">' + this.key + '</span>';
+                            d.Name = d.Name.replace(replaceReg, replaceString);
+                        }
+
+                        this.tableData.push(d);
+                    }
 
                 })
             },
-            rowClick(row, column, event) {
-                this.clickHistory.push(row);
-                this.curParent = row;
-                this.search();
-                this.getCurDirs();
-                console.info('rowClick', this.curParent);
-            },
-
-            back() {
-                if (this.clickHistory.length <= 1) return;
-                this.curParent = this.clickHistory.slice(-2)[0];
-
-                this.clickHistory.pop();
-                this.search();
-
-                this.getCurDirs();
-                console.info('back', this.curParent);
-            },
-
-            getCurDirs() {
-                var t = "";
-                for (var i in this.clickHistory) {
-                    var e = this.clickHistory[i];
-                    if (e.CateName == "/") e.CateName = '首页';
-                    t += e.CateName + "/";
-                    console.info('------', e.CateName);
-                }
-                console.info('t', t);
-                this.curDirs = t;
-            },
-
-            showAdd() {
-                this.showNewDialog = true;
-                this.dialogTitle = "添加配置";
-
-                this.newModel = {
-                    DomainId: 0,
-                    IsValid: true,
-                    ParentCateCode: this.curParent.CateCode,
-                    CateName: '',
-                    CateCode: '',
-                    Sort: 0
-                };
-
-                this.newModel.Level = this.curParent.Level || this.curParent.Level == 0 ? parseInt(this.curParent.Level) + 1 : 0;
-                this.newModel.CateCode = this.curParent.CateCode ? this.curParent.CateCode + "_" : '';
-            },
-
-            add() {
-                this.$refs["newModel"].validate(valid => {
-                    if (valid) {
-                        this.editLoading = true;
-                        axios.post(`${this.apiUrl}/Atom/AddDict`, this.newModel).then(res => {
-                            this.editLoading = false;
-                            if (res.data.Code != 1) return this.$message({ message: res.data.Message, type: "warning" });;
-                            this.showNewDialog = false;
-                            this.$message({ message: "添加成功", type: "success" });
-                            this.search();
-                        })
-                    } else return false;
-                });
-            },
-
-            showEdit(row, column, event) {
-                this.newModel = row;
-                this.dialogTitle = "修改配置";
-                this.showNewDialog = true;
-            },
-
-            edit() {
-                this.$refs["newModel"].validate(valid => {
-                    if (valid) {
-                        this.editLoading = true;
-                        axios.post(`${this.apiUrl}/Atom/EditDict`, this.newModel).then(res => {
-                            this.editLoading = false;
-                            if (res.data.Code != 1) return this.$message({ message: res.data.Message, type: "warning" });;
-                            this.showNewDialog = false;
-                            this.$message({ message: "修改成功", type: "success" });
-                            this.search();
-                        })
-                    } else return false;
-                });
-            },
-
-            formatIsValid(row, column, cellValue) {
-                if (cellValue === true) return "启用";
-                else if (cellValue === false) return "禁用";
-                else return "未知";
-            }
 
 
         },
@@ -291,7 +115,7 @@
 
     a {
         text-decoration: none;
-        color:#fff;
+        color: #fff;
     }
 
     header {
@@ -357,6 +181,10 @@
     [active] {
         font-weight: bold;
         font-size: 24px;
+    }
+
+    .hl-red {
+        color: red;
     }
 </style>
 

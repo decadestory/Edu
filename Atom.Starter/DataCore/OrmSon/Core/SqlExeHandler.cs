@@ -17,7 +17,7 @@ namespace Orm.Son.Core
             if (dbConn.State != ConnectionState.Open) dbConn.Open();
             var dbCommand = dbConn.CreateCommand();
             dbCommand.CommandText = sql;
-            var result = dbCommand.ExecuteScalar();
+            var result = dbCommand.ExecuteNonQuery();
             return result;
         }
 
@@ -43,7 +43,7 @@ namespace Orm.Son.Core
             var dbCommand = dbConn.CreateCommand();
             dbCommand.CommandText = sql.Item1;
             sql.Item2.ForEach(t => dbCommand.Parameters.Add(t));
-            var result = dbCommand.ExecuteScalar();
+            var result = dbCommand.ExecuteNonQuery();
             return result;
         }
 

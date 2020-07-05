@@ -3,6 +3,7 @@ using Orm.Son.Core;
 using Orm.Son.Mapper;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -62,38 +63,11 @@ namespace Atom.Starter.DataCore
 
         private void GenTableColumns()
         {
-            var sql = @"if not exists(select 1 from AtomDbTable)
-                                begin
-	                                insert into AtomDbTable(Name,DbTableName,ProjectId,AddTime,AddUserId,EditTime,EditUserId,IsValid)
-	                                select name,name,object_id,GETDATE(),1,GETDATE(),1,1 from sys.objects where type='U' and name not like '%Atom%'
-
-	                                select * into #temp_adt from AtomDbTable
-	                                declare @tid int;
-	                                declare @oid int;
-	                                while exists (select 1 from #temp_adt)
-	                                begin
-		                                set @tid=0;
-		                                set @oid=0;
-		                                select top 1 @tid =id,@oid=ProjectId from #temp_adt;
-
-		                                insert AtomDbColumn(DbTableId,[Name],DbColumnName,DbType,IsNull,IsPrimary,[Desc],AddTime,AddUserId,EditTime,EditUserId,IsValid)
-		                                select @tid,Convert(varchar,ep.value),Convert(varchar,c.name),
-		                                (case when t.name='varchar' or t.name='char' or t.name='nvarchar' or t.name='nchar' then convert(varchar,t.name)+'('+ case when c.max_length=-1 then 'max' else convert(varchar,c.max_length) end+')' else convert(varchar,t.name) end) DbType,
-		                                c.is_nullable,c.is_identity,Convert(varchar,ep.value),getdate(),1,getdate(),1,1
-		                                from sys.columns c
-		                                LEFT JOIN sys.extended_properties ep ON ep.major_id = c.object_id AND ep.minor_id = c.column_id 
-		                                left join sys.types t on c.user_type_id=t.user_type_id
-		                                where object_id=@oid;
-
-		                                delete #temp_adt where Id=@tid
-	                                end
-	                                drop table #temp_adt;
-                                end";
-
-            SonFact.Cur.ExecuteQuery(sql);
+            var sql = AStarterSqlGen.GenTableColumnSql();
+            SonFact.Cur.ExecuteSql(sql);
         }
 
-        //需求管理
+        # region 需求管理
         public Tuple<long, bool> AddOrEditDoc(AtomProjectDocModel model)
         {
             if (model.Id > 0) goto edit;
@@ -205,6 +179,7 @@ namespace Atom.Starter.DataCore
             var res = SonFact.Cur.ExecuteQuery<AtomProjectDocModel>(sql);
             return res;
         }
+        #endregion
 
         //1文档操作，2表操作，3字段操作
         private bool AddLog(int logType, string logTxt)
@@ -222,37 +197,7 @@ namespace Atom.Starter.DataCore
             return true;
         }
 
-        //数据库管理
-        public long AddTable(AtomDbTableModel model)
-        {
-            if (string.IsNullOrWhiteSpace(model.Name)) throw new Exception("表名不能为空");
-            if (string.IsNullOrWhiteSpace(model.DbTableName)) throw new Exception("数据库表名不能为空");
-            if (string.IsNullOrWhiteSpace(model.KeyName)) throw new Exception("数据库主键名");
-
-
-            var en = EntityMapper.Mapper<AtomDbTableModel, AtomDbTable>(model);
-            en.AddTime = DateTime.Now;
-            en.EditTime = DateTime.Now;
-            en.AddUserId = 0;
-            en.EditUserId = 0;
-            en.IsValid = true;
-
-            var tran = SonFact.Cur.BeginTransaction();
-            try
-            {
-                var res = SonFact.Cur.Insert(en);
-                var doSql = AStarterSqlGen.CreateTableSql(model.DbTableName, model.KeyName,res);
-                SonFact.Cur.ExecuteSql(doSql);
-                AddLog(2, doSql);
-                tran.Commit();
-                return res;
-            }
-            catch (Exception ex)
-            {
-                tran.Rollback();
-                throw new Exception(ex.Message);
-            }
-        }
+        #region 数据库管理
 
         public List<AtomDbTableModel> Tables(AtomDbTableModel model)
         {
@@ -267,6 +212,113 @@ namespace Atom.Starter.DataCore
             var res = SonFact.Cur.ExecuteQuery<AtomDbColumnModel>(sql);
             return res;
         }
+
+        public long AddTable(AtomDbTableModel model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Name)) throw new Exception("表名不能为空");
+            if (string.IsNullOrWhiteSpace(model.DbTableName)) throw new Exception("数据库表名不能为空");
+            if (string.IsNullOrWhiteSpace(model.KeyName)) throw new Exception("数据库主键名不能为空");
+
+
+            var en = EntityMapper.Mapper<AtomDbTableModel, AtomDbTable>(model);
+            en.AddTime = DateTime.Now;
+            en.EditTime = DateTime.Now;
+            en.AddUserId = 0;
+            en.EditUserId = 0;
+            en.IsValid = true;
+
+            var tran = SonFact.Cur.BeginTransaction();
+            try
+            {
+                var res = SonFact.Cur.Insert(en);
+                var doSql = AStarterSqlGen.CreateTableSql(model.DbTableName, model.KeyName, res, model.Name);
+                SonFact.Cur.ExecuteSql(doSql);
+                AddLog(2, doSql);
+                tran.Commit();
+                return res;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public long AddColumn(AtomDbColumnModel model)
+        {
+            if (model.DbTableId == default) throw new Exception("请选择表后再进行添加字段");
+            if (string.IsNullOrWhiteSpace(model.Name)) throw new Exception("名称不能为空");
+            if (string.IsNullOrWhiteSpace(model.DbColumnName)) throw new Exception("数据库列名不能为空");
+            if (string.IsNullOrWhiteSpace(model.DbType)) throw new Exception("类型不能为空");
+
+            var en = EntityMapper.Mapper<AtomDbColumnModel, AtomDbColumn>(model);
+            en.AddTime = DateTime.Now;
+            en.EditTime = DateTime.Now;
+            en.AddUserId = 0;
+            en.EditUserId = 0;
+            en.IsValid = true;
+
+            var tran = SonFact.Cur.BeginTransaction();
+            try
+            {
+                var res = SonFact.Cur.Insert(en);
+                var baseTable = SonFact.Cur.Find<AtomDbTable>(model.DbTableId);
+                var doSql = AStarterSqlGen.CreateColSql(model, baseTable);
+                SonFact.Cur.ExecuteSql(doSql);
+                AddLog(2, doSql);
+                tran.Commit();
+                return res;
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                throw new Exception(ex.Message);
+            }
+        }
+
+        #endregion
+
+
+        #region 数据库查询
+        public AtomSqlExeModel SqlQuery(string sql)
+        {
+            var ds = SonFact.Cur.ExecuteQuery(sql);
+            var cols = (from DataColumn col in ds.Tables[0].Columns select col.ColumnName).ToList();
+            return new AtomSqlExeModel { ColumnNames = cols, ResultTable = ds.Tables[0] };
+        }
+
+        public AtomSqlExeModel SqlExecute(string sql)
+        {
+            var cnt = SonFact.Cur.ExecuteSql(sql);
+            return new AtomSqlExeModel { RowCnt = Convert.ToInt32(cnt) };
+        }
+
+        #endregion
+
+
+        public List<AtomSearchModel> ASearch(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key)) throw new Exception("关键字不能为空");
+            if (key.Length < 2) throw new Exception("关键字至少2个字符");
+
+
+            var sql = $@"declare @key nvarchar(100)='{key}'
+                                select * from (
+                                select '需求管理' TbName,'需求模块' ColName,Id, [Name] from AtomProjectDoc where [Name] like '%'+@key+'%' union all
+                                select '需求管理' TbName,'需求描述' ColName,Id, [Desc] from AtomProjectDoc where [Desc] like '%'+@key+'%'union all
+                                select '需求管理' TbName,'存在问题' ColName,Id, Questions from AtomProjectDoc where Questions like '%'+@key+'%'union all
+                                select '需求管理' TbName,'备注' ColName,Id, Remark from AtomProjectDoc where Remark like '%'+@key+'%' union all
+
+                                select '数据库管理' TbName,'表名称' ColName,Id, [Name] from [AtomDbTable] where [Name] like '%'+@key+'%' union all
+                                select '数据库管理' TbName,'数据库表名' ColName,Id, [DbTableName] from [AtomDbTable] where [DbTableName] like '%'+@key+'%' union all
+
+                                select '数据库管理' TbName,'数据库字段名' ColName,Id, DbColumnName from [AtomDbColumn] where DbColumnName like '%'+@key+'%'union all
+                                select '数据库管理' TbName,'字段说明' ColName,Id, [Desc] from [AtomDbColumn] where [Desc] like '%'+@key+'%') aa order by TbName";
+
+            var result = SonFact.Cur.ExecuteQuery<AtomSearchModel>(sql).Take(1000).ToList();
+            return result;
+        }
+
 
     }
 }

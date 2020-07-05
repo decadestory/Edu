@@ -28,6 +28,9 @@ namespace Atom.Starter.Model
         [Description("是否主键")]
         public bool IsPrimary { get; set; }
 
+        [Description("是否自增")]
+        public bool IsIdentity { get; set; }
+
         [Description("列描述")]
         public string Desc { get; set; }
 
